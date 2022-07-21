@@ -281,14 +281,13 @@ impl ObjectMeta {
                         msg: format!(
                             "can not find {} in head response, response header: {:?}",
                             key, header
-                        )
-                        .into(),
+                        ),
                     })
                 })?
                 .to_str()
                 .map_err(|_| {
                     Error::Object(ObjectError::HeadError {
-                        msg: format!("header entry {} contains invalid ASCII code", key).into(),
+                        msg: format!("header entry {} contains invalid ASCII code", key),
                     })
                 })?;
             Ok(value)
@@ -296,12 +295,12 @@ impl ObjectMeta {
 
         let last_modified = httpdate::parse_http_date(getter("Last-Modified")?).map_err(|e| {
             Error::Object(ObjectError::HeadError {
-                msg: format!("cannot parse to system time: {}", e).into(),
+                msg: format!("cannot parse to system time: {}", e),
             })
         })?;
         let size = getter("Content-Length")?.parse().map_err(|e| {
             Error::Object(ObjectError::HeadError {
-                msg: format!("cannot parse to number: {}", e).into(),
+                msg: format!("cannot parse to number: {}", e),
             })
         })?;
         let md5 = getter("Content-Md5")?.to_string();

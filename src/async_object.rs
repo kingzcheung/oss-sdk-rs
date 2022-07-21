@@ -184,7 +184,7 @@ impl<'a> AsyncObjectAPI for OSS<'a> {
             Ok(resp.bytes().await?)
         } else {
             Err(Error::Object(ObjectError::GetError {
-                msg: format!("can not get object, status code: {}", resp.status()).into(),
+                msg: format!("can not get object, status code: {}", resp.status()),
             }))
         }
     }
@@ -220,8 +220,7 @@ impl<'a> AsyncObjectAPI for OSS<'a> {
                 msg: format!(
                     "can not put object, status code, status code: {}",
                     resp.status()
-                )
-                .into(),
+                ),
             }))
         }
     }
@@ -249,7 +248,7 @@ impl<'a> AsyncObjectAPI for OSS<'a> {
             Ok(())
         } else {
             Err(Error::Object(ObjectError::CopyError {
-                msg: format!("can not copy object, status code: {}", resp.status()).into(),
+                msg: format!("can not copy object, status code: {}", resp.status()),
             }))
         }
     }
@@ -273,7 +272,7 @@ impl<'a> AsyncObjectAPI for OSS<'a> {
             Ok(())
         } else {
             Err(Error::Object(ObjectError::DeleteError {
-                msg: format!("can not delete object, status code: {}", resp.status()).into(),
+                msg: format!("can not delete object, status code: {}", resp.status()),
             }))
         }
     }
@@ -295,7 +294,7 @@ impl<'a> AsyncObjectAPI for OSS<'a> {
             Ok(ObjectMeta::from_header_map(resp.headers())?)
         } else {
             Err(Error::Object(ObjectError::DeleteError {
-                msg: format!("can not head object, status code: {}", resp.status()).into(),
+                msg: format!("can not head object, status code: {}", resp.status()),
             }))
         }
     }

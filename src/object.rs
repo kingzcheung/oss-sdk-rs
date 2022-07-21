@@ -334,7 +334,7 @@ impl<'a> ObjectAPI for OSS<'a> {
             Ok(buf)
         } else {
             Err(Error::Object(ObjectError::GetError {
-                msg: format!("can not get object, status code: {}", resp.status()).into(),
+                msg: format!("can not get object, status code: {}", resp.status()),
             }))
         }
     }
@@ -394,7 +394,7 @@ impl<'a> ObjectAPI for OSS<'a> {
             Ok(())
         } else {
             Err(Error::Object(ObjectError::PutError {
-                msg: format!("can not put object, status code: {}", resp.status()).into(),
+                msg: format!("can not put object, status code: {}", resp.status()),
             }))
         }
     }
@@ -425,7 +425,7 @@ impl<'a> ObjectAPI for OSS<'a> {
             Ok(())
         } else {
             Err(Error::Object(ObjectError::PutError {
-                msg: format!("can not put object, status code: {}", resp.status()).into(),
+                msg: format!("can not put object, status code: {}", resp.status()),
             }))
         }
     }
@@ -457,7 +457,7 @@ impl<'a> ObjectAPI for OSS<'a> {
             Ok(())
         } else {
             Err(Error::Object(ObjectError::CopyError {
-                msg: format!("can not copy object, status code: {}", resp.status()).into(),
+                msg: format!("can not copy object, status code: {}", resp.status()),
             }))
         }
     }
@@ -479,7 +479,7 @@ impl<'a> ObjectAPI for OSS<'a> {
             Ok(())
         } else {
             Err(Error::Object(ObjectError::DeleteError {
-                msg: format!("can not delete object, status code: {}", resp.status()).into(),
+                msg: format!("can not delete object, status code: {}", resp.status()),
             }))
         }
     }
