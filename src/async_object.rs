@@ -112,7 +112,7 @@ impl<'a> AsyncObjectAPI for OSS<'a> {
                     b"MaxKeys" => max_keys = reader.read_text(e.name())?.to_string(),
                     b"Delimiter" => delimiter = reader.read_text(e.name())?.to_string(),
                     b"IsTruncated" => {
-                        is_truncated = reader.read_text(e.name())?.to_string() == "true"
+                        is_truncated = reader.read_text(e.name())? == "true"
                     }
                     b"Contents" => {
                         // do nothing

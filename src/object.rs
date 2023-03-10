@@ -256,7 +256,7 @@ impl<'a> ObjectAPI for OSS<'a> {
                     b"MaxKeys" => max_keys = reader.read_text(e.name())?.to_string(),
                     b"Delimiter" => delimiter = reader.read_text(e.name())?.to_string(),
                     b"IsTruncated" => {
-                        is_truncated = reader.read_text(e.name())?.to_string() == "true"
+                        is_truncated = reader.read_text(e.name())? == "true"
                     }
                     b"Contents" => {
                         // do nothing
@@ -324,7 +324,7 @@ impl<'a> ObjectAPI for OSS<'a> {
             self.build_request(RequestType::Get, object_name, headers, resources)?;
 
         let mut resp = reqwest::blocking::Client::new()
-            .get(&host)
+            .get(host)
             .headers(headers)
             .send()?;
         let mut buf: Vec<u8> = vec![];
@@ -385,7 +385,7 @@ impl<'a> ObjectAPI for OSS<'a> {
         let buf = load_file(file)?;
 
         let resp = reqwest::blocking::Client::new()
-            .put(&host)
+            .put(host)
             .headers(headers)
             .body(buf)
             .send()?;
@@ -416,7 +416,7 @@ impl<'a> ObjectAPI for OSS<'a> {
             self.build_request(RequestType::Put, object_name, headers, resources)?;
 
         let resp = reqwest::blocking::Client::new()
-            .put(&host)
+            .put(host)
             .headers(headers)
             .body(buf.to_owned())
             .send()?;
@@ -449,7 +449,7 @@ impl<'a> ObjectAPI for OSS<'a> {
         headers.insert("x-oss-copy-source", src.as_ref().parse()?);
 
         let resp = reqwest::blocking::Client::new()
-            .put(&host)
+            .put(host)
             .headers(headers)
             .send()?;
 
@@ -471,7 +471,7 @@ impl<'a> ObjectAPI for OSS<'a> {
             self.build_request(RequestType::Delete, object_name, Some(headers), None)?;
 
         let resp = reqwest::blocking::Client::new()
-            .delete(&host)
+            .delete(host)
             .headers(headers)
             .send()?;
 

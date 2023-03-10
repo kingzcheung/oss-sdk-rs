@@ -198,7 +198,7 @@ impl<'a> ServiceAPI for OSS<'a> {
                     b"Marker" => marker = reader.read_text(e.name())?.to_string(),
                     b"MaxKeys" => max_keys = reader.read_text(e.name())?.to_string(),
                     b"IsTruncated" => {
-                        is_truncated = reader.read_text(e.name())?.to_string() == "true"
+                        is_truncated = reader.read_text(e.name())? == "true"
                     }
                     b"NextMarker" => next_marker = reader.read_text(e.name())?.to_string(),
                     b"ID" => id = reader.read_text(e.name())?.to_string(),

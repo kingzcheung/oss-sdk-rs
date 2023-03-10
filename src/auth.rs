@@ -66,7 +66,7 @@ impl<'a> Auth for OSS<'a> {
             .expect("Hmac can take key of any size, should not happned");
         hasher.update(sign_str.as_bytes());
 
-        let sign_str_base64 = encode(&hasher.finalize().into_bytes());
+        let sign_str_base64 = encode(hasher.finalize().into_bytes());
 
         let authorization = format!("OSS {}:{}", key_id, sign_str_base64);
         debug!("authorization: {}", authorization);
