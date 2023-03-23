@@ -1,3 +1,4 @@
+use hmac::digest::InvalidLength;
 use quick_xml::Error as QxmlError;
 use reqwest::header::InvalidHeaderName as HttpInvalidHeaderNameError;
 use reqwest::header::InvalidHeaderValue as HttpInvalidHeaderValueError;
@@ -14,6 +15,7 @@ pub enum Error {
     Reqwest(ReqwestError),
     Qxml(QxmlError),
     Http(HttpError),
+    Sign(InvalidLength)
 }
 
 #[derive(Debug, Display)]
@@ -55,6 +57,12 @@ impl From<HttpInvalidHeaderNameError> for Error {
 impl From<FromUtf8Error> for Error {
     fn from(e: FromUtf8Error) -> Error {
         Error::String(e)
+    }
+}
+
+impl From<InvalidLength> for Error {
+    fn from(value: InvalidLength) -> Self {
+        Self::Sign(value)
     }
 }
 

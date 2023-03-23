@@ -22,6 +22,7 @@ pub struct ListBuckets {
 }
 
 impl ListBuckets {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         prefix: String,
         marker: String,
@@ -158,13 +159,11 @@ impl<'a> ServiceAPI for OSS<'a> {
         headers.insert(DATE, date.parse()?);
         let authorization = self.oss_sign(
             "GET",
-            self.key_id(),
-            self.key_secret(),
             "",
             "",
             &resources_str,
             &headers,
-        );
+        )?;
         headers.insert("Authorization", authorization.parse()?);
 
         let resp = self.http_client.get(host).headers(headers).send().await?;

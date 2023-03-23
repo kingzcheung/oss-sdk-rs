@@ -84,6 +84,7 @@ pub struct Object {
 }
 
 impl Object {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         key: String,
         last_modified: String,

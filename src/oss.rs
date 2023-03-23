@@ -230,13 +230,11 @@ impl<'a> OSS<'a> {
         headers.insert(DATE, date.parse()?);
         let authorization = self.oss_sign(
             req_type.as_str(),
-            self.key_id(),
-            self.key_secret(),
             self.bucket(),
             object_name,
             &resources_str,
             &headers,
-        );
+        )?;
         headers.insert("Authorization", authorization.parse()?);
 
         Ok((host, headers))

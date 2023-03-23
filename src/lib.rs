@@ -11,5 +11,5 @@ pub mod oss;
 pub mod prelude;
 pub mod service;
 
-mod auth;
+pub mod auth;
 mod utils;

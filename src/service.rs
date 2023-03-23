@@ -13,14 +13,13 @@ pub struct ListBuckets {
     max_keys: String,
     is_truncated: bool,
     next_marker: String,
-
     id: String,
     display_name: String,
-
     buckets: Vec<Bucket>,
 }
 
 impl ListBuckets {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         prefix: String,
         marker: String,
@@ -153,15 +152,7 @@ impl<'a> ServiceAPI for OSS<'a> {
 
         let mut headers = HeaderMap::new();
         headers.insert(DATE, date.parse()?);
-        let authorization = self.oss_sign(
-            "GET",
-            self.key_id(),
-            self.key_secret(),
-            "",
-            "",
-            &resources_str,
-            &headers,
-        );
+        let authorization = self.oss_sign("GET", "", "", &resources_str, &headers)?;
         headers.insert("Authorization", authorization.parse()?);
 
         let resp = reqwest::blocking::Client::new()
@@ -197,9 +188,7 @@ impl<'a> ServiceAPI for OSS<'a> {
                     b"Prefix" => prefix = reader.read_text(e.name())?.to_string(),
                     b"Marker" => marker = reader.read_text(e.name())?.to_string(),
                     b"MaxKeys" => max_keys = reader.read_text(e.name())?.to_string(),
-                    b"IsTruncated" => {
-                        is_truncated = reader.read_text(e.name())? == "true"
-                    }
+                    b"IsTruncated" => is_truncated = reader.read_text(e.name())? == "true",
                     b"NextMarker" => next_marker = reader.read_text(e.name())?.to_string(),
                     b"ID" => id = reader.read_text(e.name())?.to_string(),
                     b"DisplayName" => display_name = reader.read_text(e.name())?.to_string(),
