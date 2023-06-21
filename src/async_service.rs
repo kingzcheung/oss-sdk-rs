@@ -1,10 +1,11 @@
+//! Copyright The NoXF/oss-rust-sdk Authors
 use async_trait::async_trait;
 use quick_xml::{events::Event, Reader};
 use reqwest::header::{HeaderMap, DATE};
 use std::collections::HashMap;
 
 use super::auth::*;
-use super::errors::Error;
+use super::errors::OSSError;
 use super::oss::OSS;
 
 #[derive(Clone, Debug)]
@@ -134,7 +135,7 @@ impl Bucket {
 
 #[async_trait]
 pub trait ServiceAPI {
-    async fn list_bucket<S, R>(&self, resources: R) -> Result<ListBuckets, Error>
+    async fn list_bucket<S, R>(&self, resources: R) -> Result<ListBuckets, OSSError>
     where
         S: AsRef<str> + Send,
         R: Into<Option<HashMap<S, Option<S>>>> + Send;
@@ -142,7 +143,7 @@ pub trait ServiceAPI {
 
 #[async_trait]
 impl<'a> ServiceAPI for OSS<'a> {
-    async fn list_bucket<S, R>(&self, resources: R) -> Result<ListBuckets, Error>
+    async fn list_bucket<S, R>(&self, resources: R) -> Result<ListBuckets, OSSError>
     where
         S: AsRef<str> + Send,
         R: Into<Option<HashMap<S, Option<S>>>> + Send,

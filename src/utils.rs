@@ -1,11 +1,12 @@
-use super::errors::Error;
+//! Copyright The NoXF/oss-rust-sdk Authors
+use super::errors::OSSError;
 use reqwest::header::{HeaderMap, HeaderName};
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufReader, Read};
 
 #[inline]
-pub fn load_file<S>(p: S) -> Result<Vec<u8>, Error>
+pub fn load_file<S>(p: S) -> Result<Vec<u8>, OSSError>
 where
     S: AsRef<str>,
 {
@@ -17,7 +18,7 @@ where
     Ok(s)
 }
 
-pub fn to_headers<S>(hashmap: HashMap<S, S>) -> Result<HeaderMap, Error>
+pub fn to_headers<S>(hashmap: HashMap<S, S>) -> Result<HeaderMap, OSSError>
 where
     S: AsRef<str>,
 {

@@ -1,15 +1,16 @@
+//! Copyright The NoXF/oss-rust-sdk Authors
 use chrono::prelude::*;
-use reqwest::header::{HeaderMap, DATE};
 use reqwest::Client;
+use reqwest::{
+    header::{HeaderMap, DATE},
+    StatusCode,
+};
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::str;
 use std::time::{Duration, SystemTime};
-
-use crate::errors::ObjectError;
-
 use super::auth::*;
-use super::errors::Error;
+use super::errors::OSSError;
 use super::utils::*;
 
 const RESOURCES: [&str; 50] = [
@@ -200,13 +201,13 @@ impl<'a> OSS<'a> {
     }
 
     /// Build a request. Return url and header for reqwest client builder.
-     pub fn build_request<S1, S2, H, R>(
+    pub fn build_request<S1, S2, H, R>(
         &self,
         req_type: RequestType,
         object_name: S1,
         headers: H,
         resources: R,
-    ) -> Result<(String, HeaderMap), Error>
+    ) -> Result<(String, HeaderMap), OSSError>
     where
         S1: AsRef<str>,
         S2: AsRef<str>,
@@ -272,36 +273,36 @@ pub struct ObjectMeta {
 }
 
 impl ObjectMeta {
-    pub fn from_header_map(header: &HeaderMap) -> Result<Self, Error> {
-        let getter = |key: &str| -> Result<&str, Error> {
+    pub fn from_header_map(header: &HeaderMap) -> Result<Self, OSSError> {
+        let getter = |key: &str| -> Result<&str, OSSError> {
             let value = header
                 .get(key)
-                .ok_or_else(|| {
-                    Error::Object(ObjectError::HeadError {
-                        msg: format!(
-                            "can not find {} in head response, response header: {:?}",
-                            key, header
-                        ),
-                    })
+                .ok_or_else(|| OSSError::Object {
+                    status_code: StatusCode::BAD_REQUEST,
+                    message: format!(
+                        "can not find {} in head response, response header: {:?}",
+                        key, header
+                    ),
                 })?
                 .to_str()
-                .map_err(|_| {
-                    Error::Object(ObjectError::HeadError {
-                        msg: format!("header entry {} contains invalid ASCII code", key),
-                    })
+                .map_err(|_| OSSError::Object {
+                    status_code: StatusCode::BAD_REQUEST,
+                    message: format!("header entry {} contains invalid ASCII code", key),
                 })?;
             Ok(value)
         };
 
         let last_modified = httpdate::parse_http_date(getter("Last-Modified")?).map_err(|e| {
-            Error::Object(ObjectError::HeadError {
-                msg: format!("cannot parse to system time: {}", e),
-            })
+            OSSError::Object{
+                status_code: StatusCode::BAD_REQUEST,
+                message: format!("cannot parse to system time: {}", e)
+            }
         })?;
         let size = getter("Content-Length")?.parse().map_err(|e| {
-            Error::Object(ObjectError::HeadError {
-                msg: format!("cannot parse to number: {}", e),
-            })
+            OSSError::Object{
+                status_code: StatusCode::BAD_REQUEST,
+                message: format!("cannot parse to number: {}", e)
+            }
         })?;
         let md5 = getter("Content-Md5")?.to_string();
 

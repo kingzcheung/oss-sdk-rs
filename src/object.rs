@@ -1,9 +1,11 @@
+//! Copyright The NoXF/oss-rust-sdk Authors
+//! Copyright The iFREEGROUP/oss-rust-sdk Contributors
 use quick_xml::{events::Event, Reader};
 use std::collections::HashMap;
 
 use crate::oss::RequestType;
 
-use super::errors::{Error, ObjectError};
+use super::errors::{OSSError};
 use super::oss::OSS;
 use super::utils::*;
 
@@ -142,7 +144,7 @@ impl Object {
 }
 
 pub trait ObjectAPI {
-    fn list_object<S, H, R>(&self, headers: H, resources: R) -> Result<ListObjects, Error>
+    fn list_object<S, H, R>(&self, headers: H, resources: R) -> Result<ListObjects, OSSError>
     where
         S: AsRef<str>,
         H: Into<Option<HashMap<S, S>>>,
@@ -153,14 +155,14 @@ pub trait ObjectAPI {
         object_name: S1,
         headers: H,
         resources: R,
-    ) -> Result<Vec<u8>, Error>
+    ) -> Result<Vec<u8>, OSSError>
     where
         S1: AsRef<str>,
         S2: AsRef<str>,
         H: Into<Option<HashMap<S2, S2>>>,
         R: Into<Option<HashMap<S2, Option<S2>>>>;
 
-    fn get_object_acl<S>(&self, object_name: S) -> Result<String, Error>
+    fn get_object_acl<S>(&self, object_name: S) -> Result<String, OSSError>
     where
         S: AsRef<str>;
 
@@ -170,7 +172,7 @@ pub trait ObjectAPI {
         object_name: S2,
         headers: H,
         resources: R,
-    ) -> Result<(), Error>
+    ) -> Result<(), OSSError>
     where
         S1: AsRef<str>,
         S2: AsRef<str>,
@@ -184,7 +186,7 @@ pub trait ObjectAPI {
         object_name: S1,
         headers: H,
         resources: R,
-    ) -> Result<(), Error>
+    ) -> Result<(), OSSError>
     where
         S1: AsRef<str>,
         S2: AsRef<str>,
@@ -197,7 +199,7 @@ pub trait ObjectAPI {
         dest: S2,
         headers: H,
         resources: R,
-    ) -> Result<(), Error>
+    ) -> Result<(), OSSError>
     where
         S1: AsRef<str>,
         S2: AsRef<str>,
@@ -205,13 +207,13 @@ pub trait ObjectAPI {
         H: Into<Option<HashMap<S3, S3>>>,
         R: Into<Option<HashMap<S3, Option<S3>>>>;
 
-    fn delete_object<S>(&self, object_name: S) -> Result<(), Error>
+    fn delete_object<S>(&self, object_name: S) -> Result<(), OSSError>
     where
         S: AsRef<str>;
 }
 
 impl<'a> ObjectAPI for OSS<'a> {
-    fn list_object<S, H, R>(&self, headers: H, resources: R) -> Result<ListObjects, Error>
+    fn list_object<S, H, R>(&self, headers: H, resources: R) -> Result<ListObjects, OSSError>
     where
         S: AsRef<str>,
         H: Into<Option<HashMap<S, S>>>,
@@ -314,7 +316,7 @@ impl<'a> ObjectAPI for OSS<'a> {
         object_name: S1,
         headers: H,
         resources: R,
-    ) -> Result<Vec<u8>, Error>
+    ) -> Result<Vec<u8>, OSSError>
     where
         S1: AsRef<str>,
         S2: AsRef<str>,
@@ -334,13 +336,13 @@ impl<'a> ObjectAPI for OSS<'a> {
             resp.copy_to(&mut buf)?;
             Ok(buf)
         } else {
-            Err(Error::Object(ObjectError::GetError {
+            Err(OSSError::Object(ObjectError::GetError {
                 msg: format!("can not get object, status code: {}", resp.status()),
             }))
         }
     }
 
-    fn get_object_acl<S>(&self, object_name: S) -> Result<String, Error>
+    fn get_object_acl<S>(&self, object_name: S) -> Result<String, OSSError>
     where
         S: AsRef<str>,
     {
@@ -372,7 +374,7 @@ impl<'a> ObjectAPI for OSS<'a> {
         object_name: S2,
         headers: H,
         resources: R,
-    ) -> Result<(), Error>
+    ) -> Result<(), OSSError>
     where
         S1: AsRef<str>,
         S2: AsRef<str>,
@@ -394,7 +396,7 @@ impl<'a> ObjectAPI for OSS<'a> {
         if resp.status().is_success() {
             Ok(())
         } else {
-            Err(Error::Object(ObjectError::PutError {
+            Err(OSSError::Object(ObjectError::PutError {
                 msg: format!("can not put object, status code: {}", resp.status()),
             }))
         }
@@ -406,7 +408,7 @@ impl<'a> ObjectAPI for OSS<'a> {
         object_name: S1,
         headers: H,
         resources: R,
-    ) -> Result<(), Error>
+    ) -> Result<(), OSSError>
     where
         S1: AsRef<str>,
         S2: AsRef<str>,
@@ -425,7 +427,7 @@ impl<'a> ObjectAPI for OSS<'a> {
         if resp.status().is_success() {
             Ok(())
         } else {
-            Err(Error::Object(ObjectError::PutError {
+            Err(OSSError::Object(ObjectError::PutError {
                 msg: format!("can not put object, status code: {}", resp.status()),
             }))
         }
@@ -437,7 +439,7 @@ impl<'a> ObjectAPI for OSS<'a> {
         object_name: S2,
         headers: H,
         resources: R,
-    ) -> Result<(), Error>
+    ) -> Result<(), OSSError>
     where
         S1: AsRef<str>,
         S2: AsRef<str>,
@@ -457,13 +459,13 @@ impl<'a> ObjectAPI for OSS<'a> {
         if resp.status().is_success() {
             Ok(())
         } else {
-            Err(Error::Object(ObjectError::CopyError {
+            Err(OSSError::Object(ObjectError::CopyError {
                 msg: format!("can not copy object, status code: {}", resp.status()),
             }))
         }
     }
 
-    fn delete_object<S>(&self, object_name: S) -> Result<(), Error>
+    fn delete_object<S>(&self, object_name: S) -> Result<(), OSSError>
     where
         S: AsRef<str>,
     {
@@ -479,7 +481,7 @@ impl<'a> ObjectAPI for OSS<'a> {
         if resp.status().is_success() {
             Ok(())
         } else {
-            Err(Error::Object(ObjectError::DeleteError {
+            Err(OSSError::Object(ObjectError::DeleteError {
                 msg: format!("can not delete object, status code: {}", resp.status()),
             }))
         }

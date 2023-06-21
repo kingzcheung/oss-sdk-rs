@@ -1,9 +1,11 @@
+//! Copyright The NoXF/oss-rust-sdk Authors
+//! Copyright The iFREEGROUP/oss-rust-sdk Contributors
 use quick_xml::{events::Event, Reader};
 use reqwest::header::{HeaderMap, DATE};
 use std::collections::HashMap;
 
 use super::auth::*;
-use super::errors::Error;
+use super::errors::OSSError;
 use super::oss::OSS;
 
 #[derive(Clone, Debug)]
@@ -130,14 +132,14 @@ impl Bucket {
 }
 
 pub trait ServiceAPI {
-    fn list_bucket<S, R>(&self, resources: R) -> Result<ListBuckets, Error>
+    fn list_bucket<S, R>(&self, resources: R) -> Result<ListBuckets, OSSError>
     where
         S: AsRef<str>,
         R: Into<Option<HashMap<S, Option<S>>>>;
 }
 
 impl<'a> ServiceAPI for OSS<'a> {
-    fn list_bucket<S, R>(&self, resources: R) -> Result<ListBuckets, Error>
+    fn list_bucket<S, R>(&self, resources: R) -> Result<ListBuckets, OSSError>
     where
         S: AsRef<str>,
         R: Into<Option<HashMap<S, Option<S>>>>,
