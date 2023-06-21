@@ -44,6 +44,19 @@ pub trait AsyncObjectAPI {
         H: Into<Option<HashMap<S2, S2>>> + Send,
         R: Into<Option<HashMap<S2, Option<S2>>>> + Send;
 
+    async fn append_object<S1, S2, H, R>(
+        &self,
+        buf: &[u8],
+        object_name: S1,
+        headers: H,
+        resources: R,
+    ) -> Result<Option<u64>, Error>
+    where
+        S1: AsRef<str> + Send,
+        S2: AsRef<str> + Send,
+        H: Into<Option<HashMap<S2, S2>>> + Send,
+        R: Into<Option<HashMap<S2, Option<S2>>>> + Send;
+
     async fn copy_object_from_object<S1, S2, S3, H, R>(
         &self,
         src: S1,
@@ -111,9 +124,7 @@ impl<'a> AsyncObjectAPI for OSS<'a> {
                     b"Marker" => marker = reader.read_text(e.name())?.to_string(),
                     b"MaxKeys" => max_keys = reader.read_text(e.name())?.to_string(),
                     b"Delimiter" => delimiter = reader.read_text(e.name())?.to_string(),
-                    b"IsTruncated" => {
-                        is_truncated = reader.read_text(e.name())? == "true"
-                    }
+                    b"IsTruncated" => is_truncated = reader.read_text(e.name())? == "true",
                     b"Contents" => {
                         // do nothing
                     }
@@ -185,6 +196,56 @@ impl<'a> AsyncObjectAPI for OSS<'a> {
         } else {
             Err(Error::Object(ObjectError::GetError {
                 msg: format!("can not get object, status code: {}", resp.status()),
+            }))
+        }
+    }
+
+    async fn append_object<S1, S2, H, R>(
+        &self,
+        buf: &[u8],
+        object_name: S1,
+        headers: H,
+        resources: R,
+    ) -> Result<Option<u64>, Error>
+    where
+        S1: AsRef<str> + Send,
+        S2: AsRef<str> + Send,
+        H: Into<Option<HashMap<S2, S2>>> + Send,
+        R: Into<Option<HashMap<S2, Option<S2>>>> + Send,
+    {
+        // let mut resources:HashMap<&str, Option<&str>>= HashMap::new();
+        // resources.insert("append", None);
+        // resources.insert("position", Some("1"));
+
+        let (host, headers) =
+            self.build_request(RequestType::Post, object_name, headers, resources)?;
+        let resp = self
+            .http_client
+            .post(&host)
+            .headers(headers)
+            .body(buf.to_owned())
+            .send()
+            .await?;
+        let status = resp.status();
+
+        let resp_headers = resp.headers();
+        if status.is_success() {
+            let next_position = if let Some(next) = resp_headers.get("x-oss-next-append-position") {
+                let next = String::from_utf8_lossy(next.as_bytes()).to_string();
+                match next.parse::<u64>() {
+                    Ok(u) => Some(u),
+                    Err(_) => None,
+                }
+            } else {
+                None
+            };
+            Ok(next_position)
+        } else {
+            Err(Error::Object(ObjectError::DeleteError {
+                msg: format!(
+                    "can not append object, status code, status code: {}",
+                    status
+                ),
             }))
         }
     }

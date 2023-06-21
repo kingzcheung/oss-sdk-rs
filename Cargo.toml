@@ -13,7 +13,7 @@ reqwest = { version = "0.11.13", features = ["blocking"], default-features = fal
 base64 = "0.13"
 chrono = "0.4.20"
 log = "0.4.17"
-quick-xml = "0.27"
+quick-xml = "0.28.2"
 derive_more = "0.99.5"
 bytes = "1.0"
 async-trait = "0.1.53"
@@ -23,6 +23,9 @@ sha1 = "0.10"
 
 [dev-dependencies]
 tokio = { version = "1.1", features = ["full"] }
+
+[target.'cfg(unix)'.dev-dependencies]
+dotenvy = "0.15.7"
 
 [features]
 default = [ "native-tls" ]

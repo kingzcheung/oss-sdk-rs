@@ -200,7 +200,7 @@ impl<'a> OSS<'a> {
     }
 
     /// Build a request. Return url and header for reqwest client builder.
-    pub fn build_request<S1, S2, H, R>(
+     pub fn build_request<S1, S2, H, R>(
         &self,
         req_type: RequestType,
         object_name: S1,
@@ -246,6 +246,7 @@ pub enum RequestType {
     Put,
     Delete,
     Head,
+    Post,
 }
 
 impl RequestType {
@@ -255,6 +256,7 @@ impl RequestType {
             RequestType::Put => "PUT",
             RequestType::Delete => "DELETE",
             RequestType::Head => "HEAD",
+            RequestType::Post => "POST",
         }
     }
 }
