@@ -1,9 +1,0 @@
-[package]
-name = "example"
-version = "0.1.0"
-authors = ["神龙 <baolong.mbl@alibaba-inc.com>"]
-edition = "2018"
-
-[dependencies]
-oss-rust-sdk = { path = "../" }
-tokio = { version = "1.18", features = ["full"] }

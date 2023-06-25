@@ -1,7 +1,7 @@
 //! Copyright The iFREEGROUP/oss-rust-sdk Authors
 mod common;
 use std::{collections::HashMap};
-use oss_rust_sdk::{errors::OSSError, async_object::AsyncObjectAPI};
+use oss_rust_sdk::{errors::OSSError, object::ObjectAPI};
 use common::*;
 #[tokio::test]
 async fn test_put_object() -> Result<(), OSSError> {

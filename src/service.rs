@@ -1,5 +1,5 @@
 //! Copyright The NoXF/oss-rust-sdk Authors
-//! Copyright The iFREEGROUP/oss-rust-sdk Contributors
+use async_trait::async_trait;
 use quick_xml::{events::Event, Reader};
 use reqwest::header::{HeaderMap, DATE};
 use std::collections::HashMap;
@@ -15,8 +15,10 @@ pub struct ListBuckets {
     max_keys: String,
     is_truncated: bool,
     next_marker: String,
+
     id: String,
     display_name: String,
+
     buckets: Vec<Bucket>,
 }
 
@@ -131,18 +133,20 @@ impl Bucket {
     }
 }
 
+#[async_trait]
 pub trait ServiceAPI {
-    fn list_bucket<S, R>(&self, resources: R) -> Result<ListBuckets, OSSError>
+    async fn list_bucket<S, R>(&self, resources: R) -> Result<ListBuckets, OSSError>
     where
-        S: AsRef<str>,
-        R: Into<Option<HashMap<S, Option<S>>>>;
+        S: AsRef<str> + Send,
+        R: Into<Option<HashMap<S, Option<S>>>> + Send;
 }
 
+#[async_trait]
 impl<'a> ServiceAPI for OSS<'a> {
-    fn list_bucket<S, R>(&self, resources: R) -> Result<ListBuckets, OSSError>
+    async fn list_bucket<S, R>(&self, resources: R) -> Result<ListBuckets, OSSError>
     where
-        S: AsRef<str>,
-        R: Into<Option<HashMap<S, Option<S>>>>,
+        S: AsRef<str> + Send,
+        R: Into<Option<HashMap<S, Option<S>>>> + Send,
     {
         let resources_str = if let Some(r) = resources.into() {
             self.get_resources_str(&r)
@@ -154,15 +158,18 @@ impl<'a> ServiceAPI for OSS<'a> {
 
         let mut headers = HeaderMap::new();
         headers.insert(DATE, date.parse()?);
-        let authorization = self.oss_sign("GET", "", "", &resources_str, &headers)?;
+        let authorization = self.oss_sign(
+            "GET",
+            "",
+            "",
+            &resources_str,
+            &headers,
+        )?;
         headers.insert("Authorization", authorization.parse()?);
 
-        let resp = reqwest::blocking::Client::new()
-            .get(host)
-            .headers(headers)
-            .send()?;
+        let resp = self.http_client.get(host).headers(headers).send().await?;
 
-        let xml_str = resp.text()?;
+        let xml_str = resp.text().await?;
         let mut result = Vec::new();
         let mut reader = Reader::from_str(xml_str.as_str());
         reader.trim_text(true);
@@ -190,7 +197,9 @@ impl<'a> ServiceAPI for OSS<'a> {
                     b"Prefix" => prefix = reader.read_text(e.name())?.to_string(),
                     b"Marker" => marker = reader.read_text(e.name())?.to_string(),
                     b"MaxKeys" => max_keys = reader.read_text(e.name())?.to_string(),
-                    b"IsTruncated" => is_truncated = reader.read_text(e.name())? == "true",
+                    b"IsTruncated" => {
+                        is_truncated = reader.read_text(e.name())? == "true"
+                    }
                     b"NextMarker" => next_marker = reader.read_text(e.name())?.to_string(),
                     b"ID" => id = reader.read_text(e.name())?.to_string(),
                     b"DisplayName" => display_name = reader.read_text(e.name())?.to_string(),
