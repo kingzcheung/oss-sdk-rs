@@ -1,6 +1,6 @@
 use std::{collections::HashMap, env};
 
-use oss_rust_sdk::{errors::OSSError, prelude::OSS, object::ObjectAPI};
+use oss_sdk_rs::{errors::OSSError, prelude::OSS, object::ObjectAPI};
 
 #[tokio::main]
 async fn main()->Result<(), OSSError>{

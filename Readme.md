@@ -1,6 +1,8 @@
 # OSS-Rust-SDK
 
-[![Latest Version](https://img.shields.io/crates/v/oss-rust-sdk.svg)](https://crates.io/crates/oss-rust-sdk)
+[![Latest Version](https://img.shields.io/crates/v/oss-sdk-rs.svg)](https://crates.io/crates/oss-sdk-rs)
+
+> Fork from https://github.com/NoXF/oss-rust-sdk
 
 It's an unofficial Rust port for https://github.com/aliyun/aliyun-oss-cpp-sdk, just implement core APIs of https://help.aliyun.com/document_detail/31977.html, everyone is welcome to submit a PR to implement which interface you need.
 
@@ -42,7 +44,7 @@ async fn main() -> Result<(), OSSError> {
     Ok(())
 }
 ```
-- More example: [examples](./example/)
+- More example: [examples](https://github.com/iFREEGROUP/oss-sdk-rs/tree/master/examples)
 
 Note: I've removed the blocking code for the repository. If you need it, please move here: [NoXF/oss-rust-sdk](https://github.com/NoXF/oss-rust-sdk)
 

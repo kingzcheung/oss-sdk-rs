@@ -1,5 +1,5 @@
 //! Copyright The NoXF/oss-rust-sdk Authors
-//! Copyright The iFREEGROUP/oss-rust-sdk Contributors
+//! Copyright The iFREEGROUP/oss-sdk-rs Contributors
 
 use std::collections::HashMap;
 

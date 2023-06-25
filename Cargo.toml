@@ -1,12 +1,12 @@
 [package]
-name = "oss-rust-sdk"
-version = "0.8.0"
+name = "oss-sdk-rs"
+version = "1.0.0"
 authors = ["NoXF <xianyou.cyq@gmail.com>","kingzcheung <kingzcheung@gmail.com>"]
 edition = "2021"
 readme = "README.md"
 description = "Aliyun OSS SDK"
 license = "Apache-2.0"
-repository = "https://github.com/ifreegroup/oss-rust-sdk"
+repository = "https://github.com/iFREEGROUP/oss-sdk-rs"
 
 [dependencies]
 tokio = {version = "1.28.0", features = ["full"]}

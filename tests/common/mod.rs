@@ -1,7 +1,7 @@
-//! Copyright The iFREEGROUP/oss-rust-sdk Authors
+//! Copyright The iFREEGROUP/oss-sdk-rs Authors
 use std::env;
 
-use oss_rust_sdk::prelude::OSS;
+use oss_sdk_rs::prelude::OSS;
 
 pub fn create_oss_client()->OSS<'static> {
     dotenvy::dotenv().unwrap();

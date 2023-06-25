@@ -1,5 +1,5 @@
 //! Copyright The NoXF/oss-rust-sdk Authors
-//! Copyright The iFREEGROUP/oss-rust-sdk Contributors
+//! Copyright The iFREEGROUP/oss-sdk-rs Contributors
 use super::model::error::Error as ErrorResponse;
 use hmac::digest::InvalidLength;
 use quick_xml::Error as QxmlError;
