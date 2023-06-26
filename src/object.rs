@@ -1,21 +1,28 @@
 //! Copyright The NoXF/oss-rust-sdk Authors
 //! Copyright The iFREEGROUP/oss-sdk-rs Contributors
 
+use super::model::error::Error as ErrorResponse;
+use crate::{
+    errors::status_to_response,
+    model::{object::ListBucketResult, Empty},
+    oss::{ObjectMeta, RequestType},
+    prelude::OSS,
+};
 use std::collections::HashMap;
 
-use crate::{
-    oss::{ObjectMeta, RequestType},
-    prelude::{OSS}, errors::status_to_response, model::object::ListBucketResult,
-};
-
-use super::errors::{OSSError};
+use super::errors::OSSError;
 
 use async_trait::async_trait;
 use bytes::Bytes;
+use reqwest::StatusCode;
 
 #[async_trait]
 pub trait ObjectAPI {
-    async fn list_object<S, H, R>(&self, headers: H, resources: R) -> Result<ListBucketResult, OSSError>
+    async fn list_object<S, H, R>(
+        &self,
+        headers: H,
+        resources: R,
+    ) -> Result<ListBucketResult, OSSError>
     where
         S: AsRef<str>,
         H: Into<Option<HashMap<S, S>>> + Send,
@@ -84,7 +91,11 @@ pub trait ObjectAPI {
 
 #[async_trait]
 impl<'a> ObjectAPI for OSS<'a> {
-    async fn list_object<S, H, R>(&self, headers: H, resources: R) -> Result<ListBucketResult, OSSError>
+    async fn list_object<S, H, R>(
+        &self,
+        headers: H,
+        resources: R,
+    ) -> Result<ListBucketResult, OSSError>
     where
         S: AsRef<str>,
         H: Into<Option<HashMap<S, S>>> + Send,
@@ -99,7 +110,6 @@ impl<'a> ObjectAPI for OSS<'a> {
         let text = resp.text().await?;
 
         status_to_response(status, text)
-
     }
     async fn get_object<S1, S2, H, R>(
         &self,
@@ -123,7 +133,10 @@ impl<'a> ObjectAPI for OSS<'a> {
         if status.is_success() {
             Ok(resp.bytes().await?)
         } else {
-            Err(OSSError::Object { status_code: status, message: "get object fail".into() })
+            Err(OSSError::Object {
+                status_code: status,
+                message: "get object fail".into(),
+            })
         }
     }
 
@@ -156,19 +169,33 @@ impl<'a> ObjectAPI for OSS<'a> {
         let status = resp.status();
 
         let resp_headers = resp.headers();
-        if status.is_success() {
-            let next_position = if let Some(next) = resp_headers.get("x-oss-next-append-position") {
-                let next = String::from_utf8_lossy(next.as_bytes()).to_string();
-                match next.parse::<u64>() {
-                    Ok(u) => Some(u),
-                    Err(_) => None,
-                }
-            } else {
-                None
-            };
-            Ok(next_position)
-        } else {
-            Err(OSSError::Object { status_code: status, message: "append object fail".into() })
+        match status {
+            StatusCode::OK
+            | StatusCode::NO_CONTENT
+            | StatusCode::CREATED
+            | StatusCode::ACCEPTED => {
+                let next_position =
+                    if let Some(next) = resp_headers.get("x-oss-next-append-position") {
+                        let next = String::from_utf8_lossy(next.as_bytes()).to_string();
+                        match next.parse::<u64>() {
+                            Ok(u) => Some(u),
+                            Err(_) => None,
+                        }
+                    } else {
+                        None
+                    };
+                Ok(next_position)
+            }
+            StatusCode::BAD_REQUEST | StatusCode::FORBIDDEN | StatusCode::CONFLICT => {
+                let text = resp.text().await?;
+                // dbg!(&text);
+                let er: ErrorResponse = serde_xml_rs::from_str(&text)?;
+                Err(OSSError::Object {
+                    status_code: status,
+                    message: er.message,
+                })
+            }
+            _ => Err(OSSError::Unknown),
         }
     }
 
@@ -198,8 +225,8 @@ impl<'a> ObjectAPI for OSS<'a> {
         let status = resp.status();
         let text = resp.text().await?;
 
-        status_to_response::<()>(status, text)
-        
+        let _ = status_to_response::<Empty>(status, text)?;
+        Ok(())
     }
 
     async fn copy_object_from_object<S1, S2, S3, H, R>(
@@ -223,8 +250,8 @@ impl<'a> ObjectAPI for OSS<'a> {
 
         let status = resp.status();
         let text = resp.text().await?;
-        status_to_response::<()>(status, text)
-        
+        status_to_response::<Empty>(status, text)?;
+        Ok(())
     }
 
     async fn delete_object<S>(&self, object_name: S) -> Result<(), OSSError>
@@ -242,9 +269,11 @@ impl<'a> ObjectAPI for OSS<'a> {
             .send()
             .await?;
 
-            let status = resp.status();
-            let text = resp.text().await?;
-            status_to_response::<()>(status, text)
+        let status = resp.status();
+        let text = resp.text().await?;
+
+        let _ = status_to_response::<Empty>(status, text)?;
+        Ok(())
     }
 
     async fn head_object<S>(&self, object_name: S) -> Result<ObjectMeta, OSSError>
@@ -263,7 +292,10 @@ impl<'a> ObjectAPI for OSS<'a> {
         if resp.status().is_success() {
             Ok(ObjectMeta::from_header_map(resp.headers())?)
         } else {
-            Err(OSSError::Object { status_code: status, message: "head object error".into() })
+            Err(OSSError::Object {
+                status_code: status,
+                message: "head object error".into(),
+            })
         }
     }
 }

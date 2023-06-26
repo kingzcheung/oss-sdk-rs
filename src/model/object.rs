@@ -1,7 +1,7 @@
 use serde::{Serialize, Deserialize};
 
 
-#[derive(Serialize, Deserialize,Debug)]
+#[derive(Serialize, Deserialize,Debug,Default)]
 pub struct ListBucketResult {
     #[serde(rename = "Name")]
     pub name: String,
@@ -16,7 +16,7 @@ pub struct ListBucketResult {
     pub contents: Vec<Content>,
 }
 
-#[derive(Serialize, Deserialize,Debug)]
+#[derive(Serialize, Deserialize,Debug,Default)]
 pub struct Content {
     #[serde(rename = "Key")]
     pub key: String,
@@ -40,7 +40,7 @@ pub struct Content {
     pub owner: Owner,
 }
 
-#[derive(Serialize, Deserialize,Debug)]
+#[derive(Serialize, Deserialize,Debug,Default)]
 pub struct Owner {
     #[serde(rename = "ID")]
     pub id: String,

@@ -1,7 +1,7 @@
 use serde::{Serialize, Deserialize};
 
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize,Default)]
 pub struct Error {
     #[serde(rename = "Code")]
     pub code: String,
@@ -16,7 +16,7 @@ pub struct Error {
     pub host_id: String,
 
     #[serde(rename = "ArgumentName")]
-    pub argument_name: String,
+    pub argument_name: Option<String>,
 
     #[serde(rename = "EC")]
     pub ec: String,

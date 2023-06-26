@@ -1,12 +1,13 @@
 //! Copyright The NoXF/oss-rust-sdk Authors
 //! Copyright The iFREEGROUP/oss-sdk-rs Contributors
+
 use super::model::error::Error as ErrorResponse;
 use hmac::digest::InvalidLength;
 use quick_xml::Error as QxmlError;
-use reqwest::header::InvalidHeaderValue as HttpInvalidHeaderValueError;
+use reqwest::header::{InvalidHeaderValue as HttpInvalidHeaderValueError};
 use reqwest::Error as ReqwestError;
 use reqwest::{header::InvalidHeaderName as HttpInvalidHeaderNameError, StatusCode};
-use serde::Deserialize;
+use serde::{Deserialize};
 use std::io::Error as IoError;
 use std::string::FromUtf8Error;
 use thiserror::Error;
@@ -58,14 +59,27 @@ impl From<HttpInvalidHeaderNameError> for OSSError {
 
 pub fn status_to_response<'de, T>(status: StatusCode, text: String) -> Result<T, OSSError>
 where
-    T: Deserialize<'de>,
+    T: Deserialize<'de> + Default,
 {
     match status {
-        StatusCode::OK => {
-            let r: T = serde_xml_rs::from_str(&text)?;
-            Ok(r)
+        StatusCode::OK
+        | StatusCode::CREATED
+        | StatusCode::ACCEPTED
+        | StatusCode::NON_AUTHORITATIVE_INFORMATION
+        | StatusCode::NO_CONTENT
+        | StatusCode::RESET_CONTENT
+        | StatusCode::PARTIAL_CONTENT
+        | StatusCode::MULTI_STATUS
+        | StatusCode::ALREADY_REPORTED => {
+            let mut r = T::default();
+            if !text.is_empty() {
+                r = serde_xml_rs::from_str(&text)?;
+                Ok(r)
+            } else {
+                Ok(r)
+            }
         }
-        StatusCode::BAD_REQUEST|StatusCode::FORBIDDEN|StatusCode::CONFLICT => {
+        StatusCode::BAD_REQUEST | StatusCode::FORBIDDEN | StatusCode::CONFLICT => {
             let er: ErrorResponse = serde_xml_rs::from_str(&text)?;
             Err(OSSError::Object {
                 status_code: status,
