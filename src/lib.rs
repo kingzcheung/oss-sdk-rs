@@ -1,7 +1,5 @@
 //! Copyright The NoXF/oss-rust-sdk Authors
 #[macro_use]
-extern crate derive_more;
-#[macro_use]
 extern crate log;
 
 pub mod object;

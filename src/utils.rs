@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufReader, Read};
 
+#[allow(dead_code)]
 #[inline]
 pub fn load_file<S>(p: S) -> Result<Vec<u8>, OSSError>
 where
