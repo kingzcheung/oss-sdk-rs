@@ -6,11 +6,26 @@ pub struct ListBucketResult {
     #[serde(rename = "Name")]
     pub name: String,
 
+    #[serde(rename = "Prefix")]
+    pub prefix: Option<String>,
+
+    #[serde(rename = "Marker")]
+    pub marker: Option<String>,
+
+    #[serde(rename = "Delimiter")]
+    pub delimiter: Option<String>,
+
+    #[serde(rename = "EncodingType")]
+    pub encoding_type: Option<String>,
+
     #[serde(rename = "MaxKeys")]
     pub max_keys: String,
 
     #[serde(rename = "IsTruncated")]
     pub is_truncated: String,
+
+    #[serde(rename = "NextMarker")]
+    pub next_marker: Option<String>,
 
     #[serde(rename = "Contents")]
     pub contents: Option<Vec<Content>>,
