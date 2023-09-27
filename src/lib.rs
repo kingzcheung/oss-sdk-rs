@@ -9,4 +9,4 @@ pub mod oss;
 pub mod prelude;
 pub mod auth;
 mod utils;
-mod model;
+pub mod model;
