@@ -60,7 +60,9 @@ async fn test_append_object() -> Result<(), OSSError> {
 async fn test_list_objects() -> Result<(), OSSError> {
     let oss = create_oss_client();
 
-    let res = oss.list_object(None::<HashMap<&str, &str>>, None).await?;
+    let mut resource: HashMap<&str, Option<&str>> = HashMap::new();
+    resource.insert("prefix", Some("dataset/raw/anitnet_test/"));
+    let res = oss.list_object(None::<HashMap<&str, &str>>, resource).await?;
 
     dbg!(res);
     Ok(())

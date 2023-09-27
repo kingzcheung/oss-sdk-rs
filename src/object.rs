@@ -108,7 +108,6 @@ impl<'a> ObjectAPI for OSS<'a> {
 
         let status = resp.status();
         let text = resp.text().await?;
-
         status_to_response(status, text)
     }
     async fn get_object<S1, S2, H, R>(

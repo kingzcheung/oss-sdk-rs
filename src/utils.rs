@@ -1,7 +1,7 @@
 //! Copyright The NoXF/oss-rust-sdk Authors
 use super::errors::OSSError;
 use reqwest::header::{HeaderMap, HeaderName};
-use std::collections::HashMap;
+use std::{collections::HashMap};
 use std::fs::File;
 use std::io::{BufReader, Read};
 

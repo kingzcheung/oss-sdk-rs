@@ -13,7 +13,7 @@ pub struct ListBucketResult {
     pub is_truncated: String,
 
     #[serde(rename = "Contents")]
-    pub contents: Vec<Content>,
+    pub contents: Option<Vec<Content>>,
 }
 
 #[derive(Serialize, Deserialize,Debug,Default)]
