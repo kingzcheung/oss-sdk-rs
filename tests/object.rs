@@ -69,6 +69,18 @@ async fn test_list_objects() -> Result<(), OSSError> {
 }
 
 #[tokio::test]
+async fn test_list_objects_v2() -> Result<(), OSSError> {
+    let oss = create_oss_client();
+
+    let mut resource: HashMap<&str, Option<&str>> = HashMap::new();
+    resource.insert("prefix", Some("dataset/raw/anitnet_test/empty"));
+    let res = oss.list_object_v2(Some("dataset/raw/anitnet_test/empty"), None).await?;
+
+    dbg!(res);
+    Ok(())
+}
+
+#[tokio::test]
 async fn test_get_object() -> Result<(), OSSError> {
     let oss = create_oss_client();
     let buffer = "test async put object from buffer";

@@ -52,7 +52,7 @@ pub struct Content {
     pub storage_class: String,
 
     #[serde(rename = "Owner")]
-    pub owner: Owner,
+    pub owner: Option<Owner>,
 }
 
 #[derive(Serialize, Deserialize,Debug,Default)]
