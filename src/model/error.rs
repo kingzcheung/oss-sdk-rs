@@ -3,21 +3,21 @@ use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize,Default)]
 pub struct Error {
-    #[serde(rename = "Code")]
+    #[serde(rename(serialize = "code", deserialize = "Code"))]
     pub code: String,
 
-    #[serde(rename = "Message")]
+    #[serde(rename(serialize = "message", deserialize = "Message"))]
     pub message: String,
 
-    #[serde(rename = "RequestId")]
+    #[serde(rename(serialize = "request_id", deserialize = "RequestId"))]
     pub request_id: String,
 
-    #[serde(rename = "HostId")]
+    #[serde(rename(serialize = "host_id", deserialize = "HostId"))]
     pub host_id: String,
 
-    #[serde(rename = "ArgumentName")]
+    #[serde(rename(serialize = "argument_name", deserialize = "ArgumentName"))]
     pub argument_name: Option<String>,
 
-    #[serde(rename = "EC")]
+    #[serde(rename(serialize = "ec", deserialize = "EC"))]
     pub ec: String,
 }

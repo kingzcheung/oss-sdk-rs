@@ -1,6 +1,6 @@
 [package]
 name = "oss-sdk-rs"
-version = "1.1.0"
+version = "1.2.0"
 authors = ["NoXF <xianyou.cyq@gmail.com>","kingzcheung <kingzcheung@gmail.com>"]
 edition = "2021"
 readme = "README.md"
@@ -14,7 +14,7 @@ reqwest = {version = "0.11.17", features = ["json"]}
 base64 = "0.21.0"
 chrono = "0.4.20"
 log = "0.4.17"
-quick-xml = "0.30.0"
+quick-xml = "0.31.0"
 serde-xml-rs = "0.6.0"
 derive_more = "0.99.5"
 bytes = "1.0"
