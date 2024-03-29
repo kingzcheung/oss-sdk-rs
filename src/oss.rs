@@ -270,6 +270,8 @@ pub struct ObjectMeta {
     pub size: usize,
     /// 128-bits RFC 1864 MD5. This field only presents in normal file. Multipart and append-able file will have empty md5.
     pub md5: String,
+
+    pub mime_type:String,
 }
 
 impl ObjectMeta {
@@ -306,10 +308,12 @@ impl ObjectMeta {
         })?;
         let md5 = getter("Content-Md5")?.to_string();
 
+        let mime_type = getter("Content-Type")?.to_string();
         Ok(Self {
             last_modified,
             size,
             md5,
+            mime_type,
         })
     }
 }
