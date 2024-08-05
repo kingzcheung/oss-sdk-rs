@@ -172,7 +172,7 @@ impl<'a> ServiceAPI for OSS<'a> {
         let xml_str = resp.text().await?;
         let mut result = Vec::new();
         let mut reader = Reader::from_str(xml_str.as_str());
-        reader.trim_text(true);
+        // reader.trim_text(true);
 
         let mut prefix = String::new();
         let mut marker = String::new();
