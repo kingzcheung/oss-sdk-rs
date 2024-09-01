@@ -5,10 +5,12 @@ use reqwest::{
     header::{HeaderMap, DATE},
     StatusCode,
 };
-use std::borrow::Cow;
+use std::{borrow::Cow, fmt::Display};
 use std::collections::HashMap;
 use std::str;
 use std::time::{Duration, SystemTime};
+use crate::object::PrivateObjectAPI;
+
 use super::auth::*;
 use super::errors::OSSError;
 use super::utils::*;
@@ -229,16 +231,28 @@ impl<'a> OSS<'a> {
             HeaderMap::new()
         };
         headers.insert(DATE, date.parse()?);
-        let authorization = self.oss_sign(
-            req_type.as_str(),
+        let authorization = self.sign(
+            req_type.to_string().as_str(),
+            self.key_secret(),
             self.bucket(),
             object_name,
             &resources_str,
             &headers,
-        )?;
+        );
         headers.insert("Authorization", authorization.parse()?);
 
         Ok((host, headers))
+    }
+    pub fn get_object_signed_url<S1>(&self, object_name: S1, expires: usize) -> String
+    where
+        S1: AsRef<str> + Send,
+    {
+        format!(
+            "https://{}.{}{}",
+            self.bucket(),
+            self.endpoint(),
+            self.generate_presigned_path(object_name, expires),
+        )
     }
 }
 
@@ -250,14 +264,14 @@ pub enum RequestType {
     Post,
 }
 
-impl RequestType {
-    fn as_str(&self) -> &str {
+impl Display for RequestType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            RequestType::Get => "GET",
-            RequestType::Put => "PUT",
-            RequestType::Delete => "DELETE",
-            RequestType::Head => "HEAD",
-            RequestType::Post => "POST",
+            RequestType::Get => write!(f, "GET"),
+            RequestType::Put => write!(f, "PUT"),
+            RequestType::Delete => write!(f, "DELETE"),
+            RequestType::Head => write!(f, "HEAD"),
+            RequestType::Post => write!(f, "POST"),
         }
     }
 }

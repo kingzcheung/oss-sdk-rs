@@ -158,13 +158,15 @@ impl<'a> ServiceAPI for OSS<'a> {
 
         let mut headers = HeaderMap::new();
         headers.insert(DATE, date.parse()?);
-        let authorization = self.oss_sign(
+        
+        let authorization = self.sign(
             "GET",
+            self.key_secret(),
             "",
             "",
             &resources_str,
             &headers,
-        )?;
+        );
         headers.insert("Authorization", authorization.parse()?);
 
         let resp = self.http_client.get(host).headers(headers).send().await?;

@@ -3,12 +3,10 @@
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::header::{CONTENT_TYPE, DATE};
 
-use base64::{ engine::general_purpose, Engine};
+use base64::prelude::*;
 use hmac::{Hmac, Mac};
 
 type HmacSha1 = Hmac<sha1::Sha1>;
-
-use crate::errors::OSSError;
 
 use super::oss::OSS;
 
@@ -39,12 +37,10 @@ impl<'a> Auth for OSS<'a> {
             .map(|d| d.to_str().unwrap_or_default())
             .unwrap_or_default();
         let content_type = headers
-            .get(CONTENT_TYPE)
-            .map(|c| c.to_str().unwrap_or_default())
+            .get(CONTENT_TYPE).map(|c| c.to_str().unwrap_or_default())
             .unwrap_or_default();
         let content_md5 = headers
-            .get("Content-MD5")
-            .map(|md5| general_purpose::STANDARD.encode(md5.to_str().unwrap_or_default()))
+            .get("Content-MD5").map(|md5| BASE64_STANDARD.encode(md5.to_str().unwrap_or_default()))
             .unwrap_or_default();
 
         let mut oss_headers: Vec<(&HeaderName, &HeaderValue)> = headers
@@ -67,19 +63,27 @@ impl<'a> Auth for OSS<'a> {
             verb, content_md5, content_type, date, oss_headers_str, oss_resource_str
         );
 
-        self.sign_content(sign_str.as_str())
+        let mut hasher = HmacSha1::new_from_slice(key_secret.as_bytes())
+            .expect("Hmac can take key of any size, should not happned");
+        hasher.update(sign_str.as_bytes());
+
+        BASE64_STANDARD.encode(hasher.finalize().into_bytes())
     }
 
-    fn sign_content(&self, content: &str) -> Result<String, OSSError> {
-        let mut hasher =
-            HmacSha1::new_from_slice(self.key_secret().as_bytes()).map_err(OSSError::Sign)?;
-        hasher.update(content.as_bytes());
-
-        let sign_str_base64 = general_purpose::STANDARD.encode(hasher.finalize().into_bytes());
-
-        let authorization = format!("OSS {}:{}", self.key_id(), sign_str_base64);
+    fn oss_sign(
+        &self,
+        verb: &str,
+        key_id: &str,
+        key_secret: &str,
+        bucket: &str,
+        object: &str,
+        oss_resources: &str,
+        headers: &HeaderMap,
+    ) -> String {
+        let sign_str_base64 = self.sign(verb, key_secret, bucket, object, oss_resources, headers);
+        let authorization = format!("OSS {}:{}", key_id, sign_str_base64);
         debug!("authorization: {}", authorization);
-        Ok(authorization)
+        authorization
     }
 }
 
