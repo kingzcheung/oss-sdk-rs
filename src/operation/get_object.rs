@@ -4,7 +4,7 @@ use _get_object_input::GetObjectInputBuilder;
 use _get_object_output::GetObjectOutput;
 use reqwest::header::HeaderMap;
 
-use crate::{client::Handle, errors::{status_to_bytes, status_to_response, OSSError}};
+use crate::{client::Handle, errors::{status_to_bytes,  OSSError}};
 
 pub mod _get_object_input;
 pub mod _get_object_output;
