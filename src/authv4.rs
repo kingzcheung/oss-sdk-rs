@@ -1,10 +1,9 @@
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::{HashMap, HashSet};
 
-use base64::{prelude::BASE64_STANDARD, Engine};
 use chrono::{DateTime, Utc};
 use hex;
 use hmac::{Hmac, Mac};
-use reqwest::header::{HeaderMap, HeaderValue, CONTENT_TYPE, DATE};
+use reqwest::header::{HeaderMap, HeaderValue};
 use sha2::{Digest, Sha256};
 
 use crate::{client::RequestType, common::{ALIYUN_V4_PREFIX, ALIYUN_V4_REQUEST, OSS_CONTENT_SHA256}};
@@ -46,9 +45,7 @@ fn get_common_additional_headers(header: &HeaderMap, additional_headers: &[Strin
     keys.sort(); // Rust 的 sort 方法会自动按字典序排序
     keys
 }
-fn no_escape(c: u8) -> bool {
-    matches!(c, b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'.' | b'_' | b'~')
-}
+
 /// 对路径字符串进行转义处理
 /// 
 /// # Arguments
@@ -153,7 +150,7 @@ impl<'a> SignerV4<'a> {
         now.format(fmt).to_string()
     }
 
-    fn datetime(&self,now:DateTime<Utc> ) -> String {
+    fn _datetime(&self,now:DateTime<Utc> ) -> String {
         let fmt = "%Y%m%dT%H%M%SZ";
         now.format(fmt).to_string()
     }
@@ -165,23 +162,7 @@ impl<'a> SignerV4<'a> {
         additional_headers: &[String],
     ) -> HeaderMap {
         let mut headers = HeaderMap::new();
-        let date = self
-            .headers
-            .get(DATE)
-            .map(|d| d.to_str().unwrap_or_default())
-            .unwrap_or_default();
-        // let content_type = self.headers
-        //     .get(CONTENT_TYPE)
-        //     .and_then(|c| Some(c.to_str().unwrap_or_default()))
-        //     .unwrap_or_default();
-        // let content_md5 = self.headers
-        //     .get("Content-MD5")
-        //     .and_then(|md5| Some(BASE64_STANDARD.encode(md5.to_str().unwrap_or_default())))
-        //     .unwrap_or_default();
-
-        // Credentials information
-        // OSS_STS_SECURITY_TOKEN
-
+        
         // Other Headers
         headers.insert(
             OSS_CONTENT_SHA256,

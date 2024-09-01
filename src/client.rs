@@ -1,7 +1,6 @@
 use core::time;
 use std::{fmt::Display, sync::Arc};
 
-use chrono::{DateTime, Utc};
 use reqwest::{
     header::{HeaderMap, HeaderValue},
     RequestBuilder, Url,
@@ -10,6 +9,7 @@ use reqwest::{
 use crate::{authv4::SignerV4, config::Config};
 
 pub mod get_object;
+pub mod put_object;
 
 #[derive(Debug, Clone)]
 pub enum RequestType {
@@ -97,9 +97,7 @@ impl Handle {
 
         let url = format!("{}{}", &self.conf.endpoint, uri.as_ref());
 
-        let req = self.http_client.request(m, url).headers(common_headers);
-
-        req
+        self.http_client.request(m, url).headers(common_headers)
     }
 }
 

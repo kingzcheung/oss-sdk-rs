@@ -1,23 +1,25 @@
 //! Copyright The iFREEGROUP/oss-sdk-rs Authors
 mod common;
+use std::env;
+
 use common::*;
 use oss_sdk_rs::errors::OSSError;
 
-// #[tokio::test]
-// async fn test_put_object() -> Result<(), OSSError> {
-//     let buffer = "test async put object from buffer";
-//     let object_name = "test/put_object.txt";
-//     let oss_instance = create_oss_client();
-//     let mut headers = HashMap::new();
-//     headers.insert("content-type", "text/plain");
-
-//     oss_instance
-//         .put_object(buffer.as_bytes(), object_name, headers, None)
-//         .await?;
-//     println!("上传成功");
-//     oss_instance.delete_object(object_name).await?;
-//     Ok(())
-// }
+#[tokio::test]
+async fn test_put_object() -> Result<(), OSSError> {
+    let buffer = "test async put object from buffer";
+    let object_name = "test/put_object.txt";
+    let oss = create_oss_client();
+    let bucket = env::var("OSS_BUCKET").unwrap();
+    oss.put_object()
+    .bucket(&bucket)
+    .key(object_name)
+    .body(buffer.as_bytes())
+    .send()
+    .await?;
+   
+    Ok(())
+}
 
 // #[tokio::test]
 // async fn test_append_object() -> Result<(), OSSError> {
