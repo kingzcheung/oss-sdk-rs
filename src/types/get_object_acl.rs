@@ -84,6 +84,7 @@ pub struct GetObjectAclOutput {
 #[derive(Debug, Clone, Deserialize)]
 pub struct Owner {
     /// 用户 ID
+    #[serde(rename = "ID")]
     pub id: String,
     /// 显示名称（与用户 ID 一致）
     #[serde(rename = "DisplayName")]

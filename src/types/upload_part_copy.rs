@@ -58,10 +58,12 @@ pub struct UploadPartCopyResponse {
 
 /// UploadPartCopy 输入构建器
 #[derive(Debug, Default)]
+#[allow(dead_code)]
 pub struct UploadPartCopyInputBuilder {
     inner: UploadPartCopyInput,
 }
 
+#[allow(dead_code)]
 impl UploadPartCopyInputBuilder {
     /// 创建新的构建器
     pub fn new() -> Self {

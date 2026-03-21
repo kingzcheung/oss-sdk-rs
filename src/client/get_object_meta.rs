@@ -211,7 +211,6 @@ fn parse_get_object_meta_output(headers: &HeaderMap) -> GetObjectMetaOutput {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
 
     #[test]
     fn test_builder_bucket_key() {

@@ -188,6 +188,7 @@ pub struct AppendObjectOutput {
 
 /// Object ACL 枚举
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[allow(dead_code)]
 pub enum ObjectAcl {
     /// 默认（继承 Bucket 权限）
     Default,
@@ -212,6 +213,7 @@ impl std::fmt::Display for ObjectAcl {
 
 /// 存储类型枚举
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[allow(dead_code)]
 pub enum StorageClass {
     /// 标准存储
     Standard,
@@ -233,6 +235,7 @@ impl std::fmt::Display for StorageClass {
 
 /// 服务端加密方式枚举
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[allow(dead_code)]
 pub enum ServerSideEncryption {
     /// AES256
     Aes256,

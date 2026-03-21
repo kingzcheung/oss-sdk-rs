@@ -12,6 +12,7 @@ pub struct ByteStream {
     inner: ByteStreamInner,
 }
 
+#[allow(unused)]
 enum ByteStreamInner {
     /// 静态数据
     Static(Bytes),

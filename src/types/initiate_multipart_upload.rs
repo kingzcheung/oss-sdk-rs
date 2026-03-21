@@ -132,10 +132,12 @@ pub struct InitiateMultipartUploadOutput {
 
 /// InitiateMultipartUpload 输入构建器
 #[derive(Debug, Default)]
+#[allow(dead_code)]
 pub struct InitiateMultipartUploadInputBuilder {
     inner: InitiateMultipartUploadInput,
 }
 
+#[allow(dead_code)]
 impl InitiateMultipartUploadInputBuilder {
     /// 创建新的构建器
     pub fn new() -> Self {

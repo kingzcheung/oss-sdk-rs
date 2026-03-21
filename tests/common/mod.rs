@@ -3,6 +3,7 @@ use std::env;
 
 use oss_sdk_rs::{Client, Config, Credentials};
 
+#[allow(dead_code)]
 pub fn create_oss_client() -> Client {
     dotenvy::dotenv().unwrap();
     let key_id = env::var("OSS_ACCESS_KEY_ID").unwrap();
