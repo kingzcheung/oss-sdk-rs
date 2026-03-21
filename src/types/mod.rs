@@ -1,6 +1,7 @@
 //! 类型定义模块
 //! 提供 AWS SDK 风格的 Input/Output 类型
 
+mod append_object;
 mod copy_object;
 mod delete_object;
 mod describe_regions;
@@ -13,6 +14,7 @@ mod list_buckets;
 mod list_objects;
 mod put_object;
 
+pub use append_object::{AppendObjectInput, AppendObjectOutput};
 pub use copy_object::{CopyObjectInput, CopyObjectOutput};
 pub use delete_object::{DeleteObjectInput, DeleteObjectOutput};
 pub use describe_regions::{DescribeRegionsInput, DescribeRegionsOutput, RegionInfo};
