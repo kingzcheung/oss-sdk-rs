@@ -12,6 +12,7 @@ mod get_bucket_info;
 mod get_bucket_location;
 mod get_bucket_stat;
 mod get_object;
+mod get_object_acl;
 mod get_object_meta;
 mod head_object;
 mod initiate_multipart_upload;
@@ -21,6 +22,7 @@ mod list_objects;
 mod list_parts;
 mod post_object;
 mod put_object;
+mod put_object_acl;
 mod restore_object;
 mod seal_append_object;
 mod upload_part;
@@ -48,6 +50,7 @@ pub use get_bucket_info::{
 pub use get_bucket_location::{GetBucketLocationInput, GetBucketLocationOutput};
 pub use get_bucket_stat::{GetBucketStatInput, GetBucketStatOutput};
 pub use get_object::{GetObjectInput, GetObjectOutput};
+pub use get_object_acl::{AccessControlPolicy, GetObjectAclInput, GetObjectAclOutput, Owner as ObjectOwner};
 pub use get_object_meta::{GetObjectMetaInput, GetObjectMetaOutput};
 pub use head_object::{
     HeadObjectInput, HeadObjectOutput, HeadObjectStatus, ObjectType, RestoreInfo,
@@ -68,6 +71,7 @@ pub use put_object::{
     ContentDisposition, ContentEncoding, ObjectAcl as PutObjectAcl, PutObjectInput,
     PutObjectOutput, StorageClass as PutStorageClass,
 };
+pub use put_object_acl::{ObjectAcl as ObjectAclPermission, PutObjectAclInput, PutObjectAclOutput};
 pub use restore_object::{
     to_restore_xml, RestoreObjectInput, RestoreObjectOutput, RestoreStatus, Tier,
 };
