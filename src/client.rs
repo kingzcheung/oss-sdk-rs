@@ -8,6 +8,7 @@ mod list_buckets;
 mod delete_object;
 mod head_object;
 mod copy_object;
+mod describe_regions;
 
 use std::sync::Arc;
 use std::time::Duration;
@@ -29,6 +30,7 @@ pub use list_buckets::ListBucketsFluentBuilder;
 pub use delete_object::DeleteObjectFluentBuilder;
 pub use head_object::HeadObjectFluentBuilder;
 pub use copy_object::CopyObjectFluentBuilder;
+pub use describe_regions::DescribeRegionsFluentBuilder;
 
 /// HTTP 请求方法
 #[derive(Debug, Clone, Copy)]
@@ -212,6 +214,12 @@ impl Client {
     /// CopyObject 操作
     pub fn copy_object(&self) -> CopyObjectFluentBuilder {
         CopyObjectFluentBuilder::new(self.handle.clone())
+    }
+
+    /// DescribeRegions 操作
+    /// 查询所有支持地域或指定地域对应的 Endpoint 信息
+    pub fn describe_regions(&self) -> DescribeRegionsFluentBuilder {
+        DescribeRegionsFluentBuilder::new(self.handle.clone())
     }
 }
 
