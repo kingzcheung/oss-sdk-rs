@@ -18,17 +18,23 @@ pub use errors::OSSError;
 
 // 重导出 types
 pub use types::{
+    AbortMultipartUploadError, AbortMultipartUploadInput, AbortMultipartUploadOutput,
     AccessControlListInfo, AppendObjectInput, AppendObjectOutput, BucketInfo, BucketInfoDetail,
-    BucketPolicyInfo, CommonPrefix, CopyObjectInput, CopyObjectOutput, DeleteMultipleObjectsInput,
+    BucketPolicyInfo, CommonPrefix, CompleteMultipartUploadInput, CompleteMultipartUploadOutput,
+    CompleteMultipartUploadResponse, CopyObjectInput, CopyObjectOutput, DeleteMultipleObjectsInput,
     DeleteMultipleObjectsOutput, DeleteObjectInput, DeleteObjectOutput, DeletedObject,
     DescribeRegionsInput, DescribeRegionsOutput, GetBucketInfoInput, GetBucketInfoOutput,
     GetBucketLocationInput, GetBucketLocationOutput, GetBucketStatInput, GetBucketStatOutput,
     GetObjectInput, GetObjectMetaInput, GetObjectMetaOutput, GetObjectOutput, HeadObjectInput,
-    HeadObjectOutput, HeadObjectStatus, ListBucketsInput, ListBucketsOutput, ListObjectsInput,
-    ListObjectsOutput, Object, ObjectIdentifier, ObjectType, OwnerInfo, PostObjectInput,
+    HeadObjectOutput, HeadObjectStatus, InitiateMultipartUploadInput, InitiateMultipartUploadOutput,
+    ListBucketsInput, ListBucketsOutput, ListMultipartUploadsInput, ListMultipartUploadsOutput,
+    ListObjectsInput, ListObjectsOutput, ListPartsInput, ListPartsOutput, MultipartUpload, Object,
+    ObjectAcl, ObjectIdentifier, ObjectType, OwnerInfo, PartInfo, PartItem, PostObjectInput,
     PostObjectOutput, PutObjectInput, PutObjectOutput, RegionInfo, RestoreInfo,
     RestoreObjectInput, RestoreObjectOutput, RestoreStatus, SealAppendObjectInput,
-    SealAppendObjectOutput, ServerSideEncryptionRule, SuccessActionStatus, Tier,
+    SealAppendObjectOutput, ServerSideEncryption, ServerSideEncryptionRule, StorageClass,
+    SuccessActionStatus, Tier, UploadPartCopyInput, UploadPartCopyOutput, UploadPartCopyResponse,
+    UploadPartInput, UploadPartOutput,
 };
 
 // 重导出 primitives

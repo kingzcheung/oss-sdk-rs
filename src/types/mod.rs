@@ -1,7 +1,9 @@
 //! 类型定义模块
 //! 提供 AWS SDK 风格的 Input/Output 类型
 
+mod abort_multipart_upload;
 mod append_object;
+mod complete_multipart_upload;
 mod copy_object;
 mod delete_multiple_objects;
 mod delete_object;
@@ -12,14 +14,26 @@ mod get_bucket_stat;
 mod get_object;
 mod get_object_meta;
 mod head_object;
+mod initiate_multipart_upload;
 mod list_buckets;
+mod list_multipart_uploads;
 mod list_objects;
+mod list_parts;
 mod post_object;
 mod put_object;
 mod restore_object;
 mod seal_append_object;
+mod upload_part;
+mod upload_part_copy;
 
+pub use abort_multipart_upload::{
+    AbortMultipartUploadError, AbortMultipartUploadInput, AbortMultipartUploadOutput,
+};
 pub use append_object::{AppendObjectInput, AppendObjectOutput};
+pub use complete_multipart_upload::{
+    to_complete_multipart_upload_xml, CompleteMultipartUploadInput, CompleteMultipartUploadOutput,
+    CompleteMultipartUploadResponse, ObjectAcl, PartItem,
+};
 pub use copy_object::{CopyObjectInput, CopyObjectOutput};
 pub use delete_multiple_objects::{
     to_xml, DeleteMultipleObjectsInput, DeleteMultipleObjectsOutput, DeletedObject,
@@ -38,11 +52,25 @@ pub use get_object_meta::{GetObjectMetaInput, GetObjectMetaOutput};
 pub use head_object::{
     HeadObjectInput, HeadObjectOutput, HeadObjectStatus, ObjectType, RestoreInfo,
 };
+pub use initiate_multipart_upload::{
+    InitiateMultipartUploadInput, InitiateMultipartUploadOutput, ServerSideEncryption,
+    StorageClass,
+};
 pub use list_buckets::{BucketInfo, ListBucketsInput, ListBucketsOutput, Owner};
+pub use list_multipart_uploads::{
+    CommonPrefix as MultipartCommonPrefix, ListMultipartUploadsInput, ListMultipartUploadsOutput,
+    MultipartUpload,
+};
 pub use list_objects::{CommonPrefix, ListObjectsInput, ListObjectsOutput, Object};
+pub use list_parts::{ListPartsInput, ListPartsOutput, PartInfo};
 pub use post_object::{PostObjectInput, PostObjectOutput, SuccessActionStatus};
 pub use put_object::{
-    ContentDisposition, ContentEncoding, ObjectAcl, PutObjectInput, PutObjectOutput, StorageClass,
+    ContentDisposition, ContentEncoding, ObjectAcl as PutObjectAcl, PutObjectInput,
+    PutObjectOutput, StorageClass as PutStorageClass,
 };
-pub use restore_object::{to_restore_xml, RestoreObjectInput, RestoreObjectOutput, RestoreStatus, Tier};
+pub use restore_object::{
+    to_restore_xml, RestoreObjectInput, RestoreObjectOutput, RestoreStatus, Tier,
+};
 pub use seal_append_object::{SealAppendObjectInput, SealAppendObjectOutput};
+pub use upload_part::{UploadPartInput, UploadPartOutput};
+pub use upload_part_copy::{UploadPartCopyInput, UploadPartCopyOutput, UploadPartCopyResponse};
