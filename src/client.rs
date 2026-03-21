@@ -14,6 +14,7 @@ mod get_object_meta;
 mod head_object;
 mod list_buckets;
 mod list_objects;
+mod post_object;
 mod put_object;
 mod seal_append_object;
 
@@ -43,6 +44,7 @@ pub use get_object_meta::GetObjectMetaFluentBuilder;
 pub use head_object::HeadObjectFluentBuilder;
 pub use list_buckets::ListBucketsFluentBuilder;
 pub use list_objects::ListObjectsFluentBuilder;
+pub use post_object::PostObjectFluentBuilder;
 pub use put_object::PutObjectFluentBuilder;
 pub use seal_append_object::SealAppendObjectFluentBuilder;
 
@@ -280,6 +282,12 @@ impl Client {
     /// 停止对某个 Appendable Object 继续追加内容，并将其转为非追加状态
     pub fn seal_append_object(&self) -> SealAppendObjectFluentBuilder {
         SealAppendObjectFluentBuilder::new(self.handle.clone())
+    }
+
+    /// PostObject 操作
+    /// 通过 HTML 表单上传的方式将文件（Object）上传到指定存储空间（Bucket）
+    pub fn post_object(&self) -> PostObjectFluentBuilder {
+        PostObjectFluentBuilder::new(self.handle.clone())
     }
 }
 

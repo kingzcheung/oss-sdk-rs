@@ -14,6 +14,7 @@ mod get_object_meta;
 mod head_object;
 mod list_buckets;
 mod list_objects;
+mod post_object;
 mod put_object;
 mod seal_append_object;
 
@@ -38,6 +39,7 @@ pub use head_object::{
 };
 pub use list_buckets::{BucketInfo, ListBucketsInput, ListBucketsOutput, Owner};
 pub use list_objects::{CommonPrefix, ListObjectsInput, ListObjectsOutput, Object};
+pub use post_object::{PostObjectInput, PostObjectOutput, SuccessActionStatus};
 pub use put_object::{
     ContentDisposition, ContentEncoding, ObjectAcl, PutObjectInput, PutObjectOutput, StorageClass,
 };
