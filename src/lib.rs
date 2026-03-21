@@ -21,6 +21,7 @@ pub use types::{
     GetObjectInput, GetObjectOutput,
     PutObjectInput, PutObjectOutput,
     ListObjectsInput, ListObjectsOutput, Object, CommonPrefix,
+    ListBucketsInput, ListBucketsOutput, BucketInfo,
     DeleteObjectInput, DeleteObjectOutput,
     HeadObjectInput, HeadObjectOutput,
     CopyObjectInput, CopyObjectOutput,
