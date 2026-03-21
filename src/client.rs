@@ -4,6 +4,7 @@
 mod get_object;
 mod put_object;
 mod list_objects;
+mod list_buckets;
 mod delete_object;
 mod head_object;
 mod copy_object;
@@ -24,6 +25,7 @@ use crate::errors::OSSError;
 pub use get_object::GetObjectFluentBuilder;
 pub use put_object::PutObjectFluentBuilder;
 pub use list_objects::ListObjectsFluentBuilder;
+pub use list_buckets::ListBucketsFluentBuilder;
 pub use delete_object::DeleteObjectFluentBuilder;
 pub use head_object::HeadObjectFluentBuilder;
 pub use copy_object::CopyObjectFluentBuilder;
@@ -189,6 +191,12 @@ impl Client {
     /// ListObjects 操作
     pub fn list_objects(&self) -> ListObjectsFluentBuilder {
         ListObjectsFluentBuilder::new(self.handle.clone())
+    }
+
+    /// ListBuckets（GetService）操作
+    /// 获取请求者拥有的所有 Bucket 列表
+    pub fn list_buckets(&self) -> ListBucketsFluentBuilder {
+        ListBucketsFluentBuilder::new(self.handle.clone())
     }
 
     /// DeleteObject 操作
