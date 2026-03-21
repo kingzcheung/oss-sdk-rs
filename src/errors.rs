@@ -1,17 +1,30 @@
 //! Copyright The NoXF/oss-rust-sdk Authors
 //! Copyright The iFREEGROUP/oss-sdk-rs Contributors
 
-use super::model::error::Error as ErrorResponse;
 use bytes::{Buf, Bytes};
 use hmac::digest::InvalidLength;
 use quick_xml::Error as QxmlError;
 use reqwest::Error as ReqwestError;
 use reqwest::{header::InvalidHeaderName as HttpInvalidHeaderNameError, StatusCode};
-use serde::{Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_json::Value;
-use std::io::{Error as IoError, Read};
+use std::io::Cursor;
+use std::io::Error as IoError;
 use std::string::FromUtf8Error;
 use thiserror::Error;
+
+/// OSS 错误响应
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ErrorResponse {
+    #[serde(rename = "Code")]
+    pub code: String,
+    #[serde(rename = "Message")]
+    pub message: String,
+    #[serde(rename = "RequestId")]
+    pub request_id: Option<String>,
+    #[serde(rename = "HostId")]
+    pub host_id: Option<String>,
+}
 
 #[derive(Debug, Error)]
 pub enum OSSError {
@@ -19,7 +32,7 @@ pub enum OSSError {
     Object {
         status_code: StatusCode,
         message: String,
-        raw_response:Value,
+        raw_response: Value,
     },
     #[error("io error")]
     Io(#[from] IoError),
@@ -29,8 +42,8 @@ pub enum OSSError {
     Reqwest(#[from] ReqwestError),
     #[error("qxml error")]
     Qxml(#[from] QxmlError),
-    #[error("parse xml error")]
-    XmlParse(#[from] serde_xml_rs::Error),
+    #[error("parse xml error: {0}")]
+    XmlParse(String),
     #[error("sign invalid length")]
     Sign(#[from] InvalidLength),
     #[error("unknown error")]
@@ -41,19 +54,23 @@ pub enum OSSError {
     KeyNotSet,
     #[error("signature does not match")]
     SignatureDoesNotMatch {
-        code:String,
-        message:String,
-        request_id:String,
-        host_id:String,
-        string_to_sign:String,
-        canonical_request_bytes:String,
-        ec:String,
-        recommend_doc:String,
+        code: String,
+        message: String,
+        request_id: String,
+        host_id: String,
+        string_to_sign: String,
+        canonical_request_bytes: String,
+        ec: String,
+        recommend_doc: String,
     },
     #[error("invalid header name")]
-    InvalidHeaderName(#[from]HttpInvalidHeaderNameError),
+    InvalidHeaderName(#[from] HttpInvalidHeaderNameError),
     #[error("invalid header value")]
-    InvalidHeaderValue(#[from]reqwest::header::InvalidHeaderValue)
+    InvalidHeaderValue(#[from] reqwest::header::InvalidHeaderValue),
+    #[error("credentials error: {0}")]
+    Credentials(String),
+    #[error("config error: {0}")]
+    Config(String),
 }
 
 #[derive(Serialize, Deserialize)]
@@ -80,9 +97,9 @@ pub struct OutputError {
     recommend_doc: String,
 }
 
-pub fn status_to_bytes<'de, T>(status: StatusCode, b: Bytes) -> Result<T, OSSError>
+pub fn status_to_bytes<T>(status: StatusCode, b: Bytes) -> Result<T, OSSError>
 where
-    T: Deserialize<'de> + Default + From<Bytes>,
+    T: DeserializeOwned + Default + From<Bytes>,
 {
     match status {
         StatusCode::OK
@@ -93,11 +110,10 @@ where
         | StatusCode::RESET_CONTENT
         | StatusCode::PARTIAL_CONTENT
         | StatusCode::MULTI_STATUS
-        | StatusCode::ALREADY_REPORTED => {
-            Ok(b.into())
-        }
+        | StatusCode::ALREADY_REPORTED => Ok(b.into()),
         StatusCode::BAD_REQUEST | StatusCode::FORBIDDEN | StatusCode::CONFLICT => {
-            let er: ErrorResponse = serde_xml_rs::from_reader(b.reader())?;
+            let er: ErrorResponse = quick_xml::de::from_reader(b.reader())
+                .map_err(|e| OSSError::XmlParse(e.to_string()))?;
             let raw = serde_json::to_value(&er).unwrap();
             Err(OSSError::Object {
                 status_code: status,
@@ -109,9 +125,9 @@ where
     }
 }
 
-pub fn status_to_response<'de, T>(status: StatusCode, text: String) -> Result<T, OSSError>
+pub fn status_to_response<T>(status: StatusCode, text: String) -> Result<T, OSSError>
 where
-    T: Deserialize<'de> + Default,
+    T: DeserializeOwned + Default,
 {
     match status {
         StatusCode::OK
@@ -123,16 +139,17 @@ where
         | StatusCode::PARTIAL_CONTENT
         | StatusCode::MULTI_STATUS
         | StatusCode::ALREADY_REPORTED => {
-            let mut r = T::default();
             if !text.is_empty() {
-                r = serde_xml_rs::from_str(&text)?;
+                let r: T = quick_xml::de::from_reader(Cursor::new(text))
+                    .map_err(|e| OSSError::XmlParse(e.to_string()))?;
                 Ok(r)
             } else {
-                Ok(r)
+                Ok(T::default())
             }
         }
         StatusCode::BAD_REQUEST | StatusCode::FORBIDDEN | StatusCode::CONFLICT => {
-            let er: ErrorResponse = serde_xml_rs::from_str(&text)?;
+            let er: ErrorResponse = quick_xml::de::from_reader(Cursor::new(text))
+                .map_err(|e| OSSError::XmlParse(e.to_string()))?;
             let raw = serde_json::to_value(&er).unwrap();
             Err(OSSError::Object {
                 status_code: status,

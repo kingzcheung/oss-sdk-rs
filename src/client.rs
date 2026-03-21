@@ -1,125 +1,228 @@
-use core::time;
-use std::{fmt::Display, sync::Arc};
+//! OSS 客户端模块
+//! 提供 AWS SDK 风格的客户端实现
+
+mod get_object;
+mod put_object;
+mod list_objects;
+mod delete_object;
+mod head_object;
+mod copy_object;
+
+use std::sync::Arc;
+use std::time::Duration;
 
 use reqwest::{
     header::{HeaderMap, HeaderValue},
     RequestBuilder, Url,
 };
 
-use crate::{authv4::SignerV4, config::Config};
+use crate::authv4::SignerV4;
+use crate::config::Config;
+use crate::credentials::Credentials;
+use crate::errors::OSSError;
 
-pub mod get_object;
-pub mod put_object;
+pub use get_object::GetObjectFluentBuilder;
+pub use put_object::PutObjectFluentBuilder;
+pub use list_objects::ListObjectsFluentBuilder;
+pub use delete_object::DeleteObjectFluentBuilder;
+pub use head_object::HeadObjectFluentBuilder;
+pub use copy_object::CopyObjectFluentBuilder;
 
-#[derive(Debug, Clone)]
-pub enum RequestType {
+/// HTTP 请求方法
+#[derive(Debug, Clone, Copy)]
+pub enum HttpMethod {
     Get,
     Put,
+    Post,
     Delete,
     Head,
-    Post,
 }
 
-impl From<RequestType> for reqwest::Method {
-    fn from(value: RequestType) -> Self {
+impl From<HttpMethod> for reqwest::Method {
+    fn from(value: HttpMethod) -> Self {
         match value {
-            RequestType::Get => Self::GET,
-            RequestType::Put => Self::PUT,
-            RequestType::Delete => Self::DELETE,
-            RequestType::Head => Self::HEAD,
-            RequestType::Post => Self::POST,
+            HttpMethod::Get => Self::GET,
+            HttpMethod::Put => Self::PUT,
+            HttpMethod::Post => Self::POST,
+            HttpMethod::Delete => Self::DELETE,
+            HttpMethod::Head => Self::HEAD,
         }
     }
 }
 
-impl Display for RequestType {
+impl std::fmt::Display for HttpMethod {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            RequestType::Get => write!(f, "GET"),
-            RequestType::Put => write!(f, "PUT"),
-            RequestType::Delete => write!(f, "DELETE"),
-            RequestType::Head => write!(f, "HEAD"),
-            RequestType::Post => write!(f, "POST"),
+            HttpMethod::Get => write!(f, "GET"),
+            HttpMethod::Put => write!(f, "PUT"),
+            HttpMethod::Post => write!(f, "POST"),
+            HttpMethod::Delete => write!(f, "DELETE"),
+            HttpMethod::Head => write!(f, "HEAD"),
         }
     }
 }
 
-#[derive(Clone, Debug)]
+/// 内部句柄
+#[derive(Debug)]
 pub struct Handle {
-    pub(crate) conf: Config,
-    pub(crate) http_client: reqwest::Client,
+    config: Config,
+    http_client: reqwest::Client,
+    credentials: Credentials,
 }
 
 impl Handle {
-
-    
-    pub fn build_request<S: AsRef<str>>(
+    /// 构建请求
+    pub fn build_request(
         &self,
-        method: RequestType,
-        uri: S,
-        bucket: Option<S>,
-        object_key: Option<S>,
+        method: HttpMethod,
+        uri: &str,
+        bucket: Option<&str>,
+        object_key: Option<&str>,
         headers: HeaderMap,
-        raw_query: Option<S>,
-    ) -> RequestBuilder {
-        let region = self.conf.region().map(|x| x.as_ref()).unwrap_or_default();
-        let raw_query = raw_query
-            .map(|x| x.as_ref().to_string())
-            .unwrap_or_default();
-        let m: reqwest::Method = method.clone().into();
+        query: Option<&str>,
+    ) -> Result<RequestBuilder, OSSError> {
+        let region = self.config.region().as_str();
+        let query = query.unwrap_or("");
+        let m: reqwest::Method = method.into();
 
         let mut common_headers = HeaderMap::new();
-        common_headers.insert("x-oss-content-sha256", HeaderValue::from_static("UNSIGNED-PAYLOAD"));
+        common_headers.insert(
+            "x-oss-content-sha256",
+            HeaderValue::from_static("UNSIGNED-PAYLOAD"),
+        );
 
-        if let Some(bucket) = &bucket {
-            let header_host = get_header_host(&self.conf.endpoint, bucket.as_ref());
-            common_headers.insert("Host", HeaderValue::from_str(&header_host).unwrap());
+        if let Some(bucket) = bucket {
+            let endpoint = self.config.endpoint().unwrap_or("");
+            let header_host = get_header_host(endpoint, bucket);
+            common_headers.insert("Host", HeaderValue::from_str(&header_host).map_err(|e| OSSError::InvalidHeaderValue(e))?);
         }
         common_headers.extend(headers);
 
         let v4 = SignerV4::new(
             &common_headers,
             method,
-            &self.conf.access_key_id,
-            &self.conf.access_key_secret,
-            &raw_query,
+            self.credentials.access_key_id(),
+            self.credentials.access_key_secret(),
+            query,
             region,
         );
         let additional_headers = &[];
         let sign_headers = v4.sign(
-            bucket.map(|x| x.as_ref().to_string()).as_deref(),
-            object_key.map(|x| x.as_ref().to_string()).as_deref(),
+            bucket.map(|s| s.to_string()).as_deref(),
+            object_key.map(|s| s.to_string()).as_deref(),
             additional_headers,
         );
 
         common_headers.extend(sign_headers);
 
+        let endpoint = self.config.endpoint().unwrap_or("");
+        let mut url = format!("{}{}", endpoint, uri);
+        
+        // 添加查询参数
+        if !query.is_empty() {
+            url.push('?');
+            url.push_str(query);
+        }
 
-        let url = format!("{}{}", &self.conf.endpoint, uri.as_ref());
-
-        self.http_client.request(m, url).headers(common_headers)
+        Ok(self.http_client.request(m, url).headers(common_headers))
     }
 }
 
 fn get_header_host(endpoint: &str, bucket: &str) -> String {
-    let u = Url::parse(endpoint).unwrap();
-    format!("{}.{}", bucket, u.host().unwrap())
+    if let Ok(u) = Url::parse(endpoint) {
+        if let Some(host) = u.host_str() {
+            return format!("{}.{}", bucket, host);
+        }
+    }
+    format!("{}.oss-cn-hangzhou.aliyuncs.com", bucket)
 }
 
-#[derive(Clone, Debug)]
+/// OSS 客户端
+#[derive(Debug, Clone)]
 pub struct Client {
-    pub(crate) handle: Arc<Handle>,
+    handle: Arc<Handle>,
 }
 
 impl Client {
-    pub fn from_conf(conf: Config) -> Self {
-        let http_client = reqwest::ClientBuilder::new()
-            .connect_timeout(time::Duration::from_secs(10))
-            .build()
-            .unwrap();
-        let handle = Handle { conf, http_client };
-        Self {
-            handle: Arc::new(handle),
+    /// 从配置创建客户端
+    pub fn from_config(config: Config) -> Result<Self, OSSError> {
+        let credentials = config
+            .credentials()
+            .cloned()
+            .ok_or_else(|| OSSError::Credentials("credentials not set".to_string()))?;
+
+        let mut builder = reqwest::ClientBuilder::new()
+            .connect_timeout(config.connect_timeout().unwrap_or(Duration::from_secs(10)));
+
+        if let Some(timeout) = config.timeout() {
+            builder = builder.timeout(timeout);
         }
+
+        let http_client = builder.build().map_err(|e| OSSError::Reqwest(e))?;
+
+        let handle = Handle {
+            config,
+            http_client,
+            credentials,
+        };
+
+        Ok(Self {
+            handle: Arc::new(handle),
+        })
+    }
+
+    /// 创建配置构建器
+    pub fn builder() -> ClientBuilder {
+        ClientBuilder::default()
+    }
+
+    /// GetObject 操作
+    pub fn get_object(&self) -> GetObjectFluentBuilder {
+        GetObjectFluentBuilder::new(self.handle.clone())
+    }
+
+    /// PutObject 操作
+    pub fn put_object(&self) -> PutObjectFluentBuilder {
+        PutObjectFluentBuilder::new(self.handle.clone())
+    }
+
+    /// ListObjects 操作
+    pub fn list_objects(&self) -> ListObjectsFluentBuilder {
+        ListObjectsFluentBuilder::new(self.handle.clone())
+    }
+
+    /// DeleteObject 操作
+    pub fn delete_object(&self) -> DeleteObjectFluentBuilder {
+        DeleteObjectFluentBuilder::new(self.handle.clone())
+    }
+
+    /// HeadObject 操作
+    pub fn head_object(&self) -> HeadObjectFluentBuilder {
+        HeadObjectFluentBuilder::new(self.handle.clone())
+    }
+
+    /// CopyObject 操作
+    pub fn copy_object(&self) -> CopyObjectFluentBuilder {
+        CopyObjectFluentBuilder::new(self.handle.clone())
+    }
+}
+
+/// 客户端构建器
+#[derive(Default)]
+pub struct ClientBuilder {
+    config: Option<Config>,
+}
+
+impl ClientBuilder {
+    /// 设置配置
+    pub fn config(mut self, config: Config) -> Self {
+        self.config = Some(config);
+        self
+    }
+
+    /// 构建客户端
+    pub fn build(self) -> Result<Client, OSSError> {
+        let config = self.config.ok_or_else(|| OSSError::Config("config not set".to_string()))?;
+        Client::from_config(config)
     }
 }

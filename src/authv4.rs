@@ -6,7 +6,8 @@ use hmac::{Hmac, Mac};
 use reqwest::header::{HeaderMap, HeaderValue};
 use sha2::{Digest, Sha256};
 
-use crate::{client::RequestType, common::{ALIYUN_V4_PREFIX, ALIYUN_V4_REQUEST, OSS_CONTENT_SHA256}};
+use crate::client::HttpMethod;
+use crate::common::{ALIYUN_V4_PREFIX, ALIYUN_V4_REQUEST, OSS_CONTENT_SHA256};
 type HmacSha256 = Hmac<Sha256>;
 
 const UNSIGNED_PAYLOAD: &str = "UNSIGNED-PAYLOAD";
@@ -21,7 +22,9 @@ const UNSIGNED_PAYLOAD: &str = "UNSIGNED-PAYLOAD";
 fn is_default_signed_header(low: &str) -> bool {
     const OSS_HEADER_PREFIX: &str = "x-oss-"; // 假设这是预定义的常量
 
-    low.starts_with(OSS_HEADER_PREFIX) || low == "content-type" || low == "content-md5"
+    low.starts_with(OSS_HEADER_PREFIX) 
+        || low == "content-type" 
+        || low == "content-md5"
 }
 
 /// 获取额外头部中符合特定条件的头部名称。
@@ -85,8 +88,14 @@ fn canonical_query(raw_query: &str) -> String {
         .map(|x| {
             if let Some(idx) = x.find('=') {
                 let (k, v) = x.split_at(idx);
+                // 跳过 '=' 字符
+                let v = &v[1..];
                 values.insert(k.to_string(), v.to_string());
                 k.to_string()
+            } else if !x.is_empty() {
+                // 没有值的参数
+                values.insert(x.to_string(), "".to_string());
+                x.to_string()
             } else {
                 "".into()
             }
@@ -103,8 +112,10 @@ fn canonical_query(raw_query: &str) -> String {
         }
         buf.push_str(k);
         if let Some(v) = values.get(k) {
-            buf.push('=');
-            buf.push_str(v);
+            if !v.is_empty() {
+                buf.push('=');
+                buf.push_str(v);
+            }
         }
     }
 
@@ -123,7 +134,7 @@ pub struct SignerV4<'a> {
 impl<'a> SignerV4<'a> {
     pub fn new(
         headers: &'a HeaderMap,
-        method:RequestType,
+        method: HttpMethod,
         access_key: &str,
         access_key_secret: &str,
         raw_query: &str,
@@ -163,23 +174,27 @@ impl<'a> SignerV4<'a> {
     ) -> HeaderMap {
         let mut headers = HeaderMap::new();
         
-        // Other Headers
-        headers.insert(
-            OSS_CONTENT_SHA256,
-            HeaderValue::from_static(UNSIGNED_PAYLOAD),
-        );
         // Scope
         let product = "oss";
         let now = Utc::now();
         let date = &self.iso8601_date_format(now);
+        let datetime = &self._datetime(now); // ISO8601 format: 20231203T121212Z
         let scope = format!("{}/{}/{}/{}", date, self.region, product, "aliyun_v4_request");
 
-        let additional_headers = get_common_additional_headers(&headers, additional_headers);
+        // 先添加 x-oss-date 和 x-oss-content-sha256 到 self.headers 的副本中
+        let mut signed_headers = self.headers.clone();
+        signed_headers.insert("x-oss-date", HeaderValue::from_str(datetime).unwrap());
+        signed_headers.insert(
+            OSS_CONTENT_SHA256,
+            HeaderValue::from_static(UNSIGNED_PAYLOAD),
+        );
 
-        // CanonicalRequest
-        let canonical_request = self.calc_canonical_request(&additional_headers, bucket, key);
-        // StringToSign
-        let string_to_sign = self.calc_string_to_sign(&now.format("%a, %d %b %Y %T GMT").to_string(), &scope, &canonical_request);
+        let additional_headers = get_common_additional_headers(&signed_headers, additional_headers);
+
+        // CanonicalRequest - 使用包含 x-oss-date 的 headers
+        let canonical_request = self.calc_canonical_request_with_headers(&additional_headers, bucket, key, &signed_headers);
+        // StringToSign - 使用 ISO8601 格式的时间戳
+        let string_to_sign = self.calc_string_to_sign(datetime, &scope, &canonical_request);
         let signature = self.calc_signature(date, &self.region, product, &string_to_sign);
         let mut authorization = String::from("OSS4-HMAC-SHA256 Credential=");
         authorization.push_str(&self.access_key);
@@ -195,16 +210,19 @@ impl<'a> SignerV4<'a> {
             "Authorization",
             HeaderValue::from_str(&authorization).unwrap(),
         );
-        // dbg!(&authorization);
+        // 设置 x-oss-date 头（ISO8601 格式）
+        headers.insert("x-oss-date", HeaderValue::from_str(datetime).unwrap());
+        // 同时设置 Date 头（RFC2822 格式）
         headers.insert(reqwest::header::DATE, self.date(now).parse().unwrap());
         headers
     }
 
-    fn calc_canonical_request(
+    fn calc_canonical_request_with_headers(
         &self,
         additional_headers: &[String],
         bucket: Option<&str>,
         key: Option<&str>,
+        headers: &HeaderMap,
     ) -> String {
         /*
             Canonical Request
@@ -233,7 +251,7 @@ impl<'a> SignerV4<'a> {
             .iter()
             .map(|x| x.to_lowercase())
             .collect();
-        for (k, _v) in self.headers {
+        for (k, _v) in headers {
             let low_k = k.as_str().to_lowercase();
             if is_default_signed_header(&low_k) {
                 headers_signed.push(low_k.clone());
@@ -248,8 +266,7 @@ impl<'a> SignerV4<'a> {
 
         for k in &headers_signed {
             canonical_headers.push_str(k);
-            let header_values: Vec<String> = self
-                .headers
+            let header_values: Vec<String> = headers
                 .get_all(k)
                 .iter()
                 .map(|v| v.to_str().unwrap_or_default().into())
@@ -262,7 +279,7 @@ impl<'a> SignerV4<'a> {
         let canonical_additional_headers = additional_headers.join(";");
 
         let mut hash_payload = "UNSIGNED-PAYLOAD";
-        if let Some(val) = self.headers.get(OSS_CONTENT_SHA256) {
+        if let Some(val) = headers.get(OSS_CONTENT_SHA256) {
             let val = val.to_str().unwrap_or_default();
             if !val.is_empty() {
                 hash_payload = val;
@@ -386,14 +403,14 @@ mod test {
         headers.insert("x-oss-content-sha256", HeaderValue::from_static("UNSIGNED-PAYLOAD"));
         let v4 = SignerV4::new(
             &headers,
-            RequestType::Put,
+            HttpMethod::Put,
             "access_key".into(),
             "accesskeysecret".into(),
             "".into(),
             "cn-hangzhou".into(),
         );
         let additional_headers:Vec<String> = vec![];
-        let r = v4.calc_canonical_request(&additional_headers, Some("examplebucket"), Some("exampleobject"));
+        let r = v4.calc_canonical_request_with_headers(&additional_headers, Some("examplebucket"), Some("exampleobject"), &headers);
         dbg!(r);
     }
     #[test]
@@ -406,14 +423,14 @@ mod test {
         headers.insert("x-oss-content-sha256", HeaderValue::from_static("UNSIGNED-PAYLOAD"));
         let v4 = SignerV4::new(
             &headers,
-            RequestType::Put,
+            HttpMethod::Put,
             "access_key".into(),
             "accesskeysecret".into(),
             "".into(),
             "cn-hangzhou".into(),
         );
         let additional_headers:Vec<String> = vec![];
-        let r = v4.calc_canonical_request(&additional_headers, Some("examplebucket"), Some("exampleobject"));
+        let r = v4.calc_canonical_request_with_headers(&additional_headers, Some("examplebucket"), Some("exampleobject"), &headers);
 
         let product = "oss";
         let scope = format!("{}/{}/{}/{}", "20231203", "cn-hangzhou", product, "aliyun_v4_request");
@@ -432,7 +449,7 @@ mod test {
         headers.insert("x-oss-content-sha256", HeaderValue::from_static("UNSIGNED-PAYLOAD"));
         let v4 = SignerV4::new(
             &headers,
-            RequestType::Put,
+            HttpMethod::Put,
             "access_key".into(),
             "accesskeysecret".into(),
             "".into(),

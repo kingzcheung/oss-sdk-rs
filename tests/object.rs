@@ -14,7 +14,7 @@ async fn test_put_object() -> Result<(), OSSError> {
     oss.put_object()
     .bucket(&bucket)
     .key(object_name)
-    .body(buffer.as_bytes())
+    .body(buffer.as_bytes().to_vec())
     .send()
     .await?;
    
@@ -94,7 +94,8 @@ async fn test_get_object() -> Result<(), OSSError> {
 // x-oss-content-sha256: UNSIGNED-PAYLOAD
 
     let r = oss.get_object().bucket("tris").key(object_name).send().await?;
-    let _ = std::fs::write("result.jpg", r.body.as_slice());
+    let body = r.body.collect().await.map_err(|e| OSSError::Io(e))?;
+    let _ = std::fs::write("result.jpg", body);
     Ok(())
 }
 
