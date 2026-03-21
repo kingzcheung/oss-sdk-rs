@@ -25,6 +25,7 @@ pub use types::{
     DeleteObjectInput, DeleteObjectOutput,
     HeadObjectInput, HeadObjectOutput,
     CopyObjectInput, CopyObjectOutput,
+    DescribeRegionsInput, DescribeRegionsOutput, RegionInfo,
 };
 
 // 重导出 primitives
