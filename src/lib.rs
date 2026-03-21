@@ -25,9 +25,9 @@ pub use types::{
     GetBucketLocationInput, GetBucketLocationOutput, GetBucketStatInput, GetBucketStatOutput,
     GetObjectInput, GetObjectMetaInput, GetObjectMetaOutput, GetObjectOutput, HeadObjectInput,
     HeadObjectOutput, HeadObjectStatus, ListBucketsInput, ListBucketsOutput, ListObjectsInput,
-    ListObjectsOutput, Object, ObjectIdentifier, ObjectType, OwnerInfo, PutObjectInput,
-    PutObjectOutput, RegionInfo, RestoreInfo, SealAppendObjectInput, SealAppendObjectOutput,
-    ServerSideEncryptionRule,
+    ListObjectsOutput, Object, ObjectIdentifier, ObjectType, OwnerInfo, PostObjectInput,
+    PostObjectOutput, PutObjectInput, PutObjectOutput, RegionInfo, RestoreInfo,
+    SealAppendObjectInput, SealAppendObjectOutput, ServerSideEncryptionRule, SuccessActionStatus,
 };
 
 // 重导出 primitives
