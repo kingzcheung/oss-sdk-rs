@@ -9,6 +9,7 @@ mod delete_object;
 mod head_object;
 mod copy_object;
 mod describe_regions;
+mod get_bucket_info;
 
 use std::sync::Arc;
 use std::time::Duration;
@@ -31,6 +32,7 @@ pub use delete_object::DeleteObjectFluentBuilder;
 pub use head_object::HeadObjectFluentBuilder;
 pub use copy_object::CopyObjectFluentBuilder;
 pub use describe_regions::DescribeRegionsFluentBuilder;
+pub use get_bucket_info::GetBucketInfoFluentBuilder;
 
 /// HTTP 请求方法
 #[derive(Debug, Clone, Copy)]
@@ -220,6 +222,12 @@ impl Client {
     /// 查询所有支持地域或指定地域对应的 Endpoint 信息
     pub fn describe_regions(&self) -> DescribeRegionsFluentBuilder {
         DescribeRegionsFluentBuilder::new(self.handle.clone())
+    }
+
+    /// GetBucketInfo 操作
+    /// 获取 Bucket 的详细信息
+    pub fn get_bucket_info(&self) -> GetBucketInfoFluentBuilder {
+        GetBucketInfoFluentBuilder::new(self.handle.clone())
     }
 }
 
