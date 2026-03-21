@@ -1,6 +1,7 @@
 //! OSS 客户端模块
 //! 提供 AWS SDK 风格的客户端实现
 
+mod append_object;
 mod copy_object;
 mod delete_object;
 mod describe_regions;
@@ -26,6 +27,7 @@ use crate::config::Config;
 use crate::credentials::Credentials;
 use crate::errors::OSSError;
 
+pub use append_object::AppendObjectFluentBuilder;
 pub use copy_object::CopyObjectFluentBuilder;
 pub use delete_object::DeleteObjectFluentBuilder;
 pub use describe_regions::DescribeRegionsFluentBuilder;
@@ -247,6 +249,12 @@ impl Client {
     /// 获取指定 Bucket 的存储容量、文件以及 Multipart 分片数量
     pub fn get_bucket_stat(&self) -> GetBucketStatFluentBuilder {
         GetBucketStatFluentBuilder::new(self.handle.clone())
+    }
+
+    /// AppendObject 操作
+    /// 以追加写的方式上传文件
+    pub fn append_object(&self) -> AppendObjectFluentBuilder {
+        AppendObjectFluentBuilder::new(self.handle.clone())
     }
 }
 
