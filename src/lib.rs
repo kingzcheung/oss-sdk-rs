@@ -27,7 +27,8 @@ pub use types::{
     HeadObjectOutput, HeadObjectStatus, ListBucketsInput, ListBucketsOutput, ListObjectsInput,
     ListObjectsOutput, Object, ObjectIdentifier, ObjectType, OwnerInfo, PostObjectInput,
     PostObjectOutput, PutObjectInput, PutObjectOutput, RegionInfo, RestoreInfo,
-    SealAppendObjectInput, SealAppendObjectOutput, ServerSideEncryptionRule, SuccessActionStatus,
+    RestoreObjectInput, RestoreObjectOutput, RestoreStatus, SealAppendObjectInput,
+    SealAppendObjectOutput, ServerSideEncryptionRule, SuccessActionStatus, Tier,
 };
 
 // 重导出 primitives

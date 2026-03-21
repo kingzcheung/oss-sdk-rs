@@ -16,6 +16,7 @@ mod list_buckets;
 mod list_objects;
 mod post_object;
 mod put_object;
+mod restore_object;
 mod seal_append_object;
 
 use std::sync::Arc;
@@ -46,6 +47,7 @@ pub use list_buckets::ListBucketsFluentBuilder;
 pub use list_objects::ListObjectsFluentBuilder;
 pub use post_object::PostObjectFluentBuilder;
 pub use put_object::PutObjectFluentBuilder;
+pub use restore_object::RestoreObjectFluentBuilder;
 pub use seal_append_object::SealAppendObjectFluentBuilder;
 
 /// HTTP 请求方法
@@ -288,6 +290,12 @@ impl Client {
     /// 通过 HTML 表单上传的方式将文件（Object）上传到指定存储空间（Bucket）
     pub fn post_object(&self) -> PostObjectFluentBuilder {
         PostObjectFluentBuilder::new(self.handle.clone())
+    }
+
+    /// RestoreObject 操作
+    /// 解冻归档、冷归档、深度冷归档类型的 Object
+    pub fn restore_object(&self) -> RestoreObjectFluentBuilder {
+        RestoreObjectFluentBuilder::new(self.handle.clone())
     }
 }
 

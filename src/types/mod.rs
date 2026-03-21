@@ -16,6 +16,7 @@ mod list_buckets;
 mod list_objects;
 mod post_object;
 mod put_object;
+mod restore_object;
 mod seal_append_object;
 
 pub use append_object::{AppendObjectInput, AppendObjectOutput};
@@ -43,4 +44,5 @@ pub use post_object::{PostObjectInput, PostObjectOutput, SuccessActionStatus};
 pub use put_object::{
     ContentDisposition, ContentEncoding, ObjectAcl, PutObjectInput, PutObjectOutput, StorageClass,
 };
+pub use restore_object::{to_restore_xml, RestoreObjectInput, RestoreObjectOutput, RestoreStatus, Tier};
 pub use seal_append_object::{SealAppendObjectInput, SealAppendObjectOutput};
