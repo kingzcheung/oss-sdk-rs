@@ -26,6 +26,8 @@ pub use types::{
     HeadObjectInput, HeadObjectOutput,
     CopyObjectInput, CopyObjectOutput,
     DescribeRegionsInput, DescribeRegionsOutput, RegionInfo,
+    GetBucketInfoInput, GetBucketInfoOutput, BucketInfoDetail,
+    OwnerInfo, AccessControlListInfo, ServerSideEncryptionRule, BucketPolicyInfo,
 };
 
 // 重导出 primitives
