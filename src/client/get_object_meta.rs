@@ -146,13 +146,11 @@ impl GetObjectMetaFluentBuilder {
                     raw_response: serde_json::Value::Null,
                 })
             }
-            _ => {
-                Err(OSSError::Object {
-                    status_code: status,
-                    message: "Get object meta failed".to_string(),
-                    raw_response: serde_json::Value::Null,
-                })
-            }
+            _ => Err(OSSError::Object {
+                status_code: status,
+                message: "Get object meta failed".to_string(),
+                raw_response: serde_json::Value::Null,
+            }),
         }
     }
 }
@@ -226,7 +224,8 @@ mod tests {
 
         let client = super::super::Client::from_config(config).unwrap();
 
-        let builder = client.get_object_meta()
+        let builder = client
+            .get_object_meta()
             .bucket("my-bucket")
             .key("my-object.txt");
 
@@ -246,7 +245,8 @@ mod tests {
 
         let client = super::super::Client::from_config(config).unwrap();
 
-        let builder = client.get_object_meta()
+        let builder = client
+            .get_object_meta()
             .bucket("my-bucket")
             .key("my-object.txt")
             .version_id("123456");

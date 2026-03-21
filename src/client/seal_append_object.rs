@@ -50,17 +50,17 @@ impl SealAppendObjectFluentBuilder {
     }
 
     /// 发送请求
-    /// 
+    ///
     /// # 返回
-    /// 
+    ///
     /// 返回 `SealAppendObjectOutput`，包含封存时间等信息
-    /// 
+    ///
     /// # 错误
-    /// 
+    ///
     /// 如果请求失败，返回 `OSSError`
-    /// 
+    ///
     /// # 示例
-    /// 
+    ///
     /// ```no_run
     /// use oss_sdk_rs::Client;
     /// # async fn example(client: Client) -> Result<(), Box<dyn std::error::Error>> {
@@ -72,7 +72,7 @@ impl SealAppendObjectFluentBuilder {
     ///     .body(b"Hello World".to_vec())
     ///     .send()
     ///     .await?;
-    /// 
+    ///
     /// // 然后封存
     /// let seal_output = client.seal_append_object()
     ///     .bucket("my-bucket")
@@ -80,7 +80,7 @@ impl SealAppendObjectFluentBuilder {
     ///     .position(append_output.next_append_position.unwrap())
     ///     .send()
     ///     .await?;
-    /// 
+    ///
     /// println!("Sealed time: {:?}", seal_output.sealed_time);
     /// # Ok(())
     /// # }

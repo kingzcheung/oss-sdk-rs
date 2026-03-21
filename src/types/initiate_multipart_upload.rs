@@ -263,7 +263,10 @@ mod tests {
         assert_eq!(StorageClass::from("IA"), StorageClass::IA);
         assert_eq!(StorageClass::from("Archive"), StorageClass::Archive);
         assert_eq!(StorageClass::from("ColdArchive"), StorageClass::ColdArchive);
-        assert_eq!(StorageClass::from("DeepColdArchive"), StorageClass::DeepColdArchive);
+        assert_eq!(
+            StorageClass::from("DeepColdArchive"),
+            StorageClass::DeepColdArchive
+        );
         assert_eq!(StorageClass::from("unknown"), StorageClass::Standard);
     }
 
@@ -287,7 +290,10 @@ mod tests {
         assert_eq!(input.bucket, "my-bucket");
         assert_eq!(input.key, "multipart.data");
         assert_eq!(input.storage_class, Some(StorageClass::Archive));
-        assert_eq!(input.content_type, Some("application/octet-stream".to_string()));
+        assert_eq!(
+            input.content_type,
+            Some("application/octet-stream".to_string())
+        );
     }
 
     #[test]
@@ -353,8 +359,14 @@ mod tests {
             .build()
             .unwrap();
 
-        assert_eq!(input.metadata.get("x-oss-meta-author"), Some(&"test".to_string()));
-        assert_eq!(input.metadata.get("x-oss-meta-version"), Some(&"1.0".to_string()));
+        assert_eq!(
+            input.metadata.get("x-oss-meta-author"),
+            Some(&"test".to_string())
+        );
+        assert_eq!(
+            input.metadata.get("x-oss-meta-version"),
+            Some(&"1.0".to_string())
+        );
     }
 
     #[test]
@@ -368,6 +380,9 @@ mod tests {
             .unwrap();
 
         assert_eq!(input.server_side_encryption, Some("KMS".to_string()));
-        assert_eq!(input.server_side_encryption_key_id, Some("key-id-123".to_string()));
+        assert_eq!(
+            input.server_side_encryption_key_id,
+            Some("key-id-123".to_string())
+        );
     }
 }

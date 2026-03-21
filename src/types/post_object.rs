@@ -267,19 +267,28 @@ impl PostObjectInputBuilder {
     }
 
     /// 设置服务端加密算法
-    pub fn x_oss_server_side_encryption(mut self, x_oss_server_side_encryption: impl Into<String>) -> Self {
+    pub fn x_oss_server_side_encryption(
+        mut self,
+        x_oss_server_side_encryption: impl Into<String>,
+    ) -> Self {
         self.x_oss_server_side_encryption = Some(x_oss_server_side_encryption.into());
         self
     }
 
     /// 设置 KMS 密钥 ID
-    pub fn x_oss_server_side_encryption_key_id(mut self, x_oss_server_side_encryption_key_id: impl Into<String>) -> Self {
+    pub fn x_oss_server_side_encryption_key_id(
+        mut self,
+        x_oss_server_side_encryption_key_id: impl Into<String>,
+    ) -> Self {
         self.x_oss_server_side_encryption_key_id = Some(x_oss_server_side_encryption_key_id.into());
         self
     }
 
     /// 设置服务端数据加密算法
-    pub fn x_oss_server_side_data_encryption(mut self, x_oss_server_side_data_encryption: impl Into<String>) -> Self {
+    pub fn x_oss_server_side_data_encryption(
+        mut self,
+        x_oss_server_side_data_encryption: impl Into<String>,
+    ) -> Self {
         self.x_oss_server_side_data_encryption = Some(x_oss_server_side_data_encryption.into());
         self
     }
@@ -362,8 +371,14 @@ mod tests {
             .unwrap();
 
         assert_eq!(input.content_type, Some("text/plain".to_string()));
-        assert_eq!(input.success_action_status, Some(SuccessActionStatus::Status200));
-        assert_eq!(input.user_metadata.get("uuid"), Some(&"my-uuid".to_string()));
+        assert_eq!(
+            input.success_action_status,
+            Some(SuccessActionStatus::Status200)
+        );
+        assert_eq!(
+            input.user_metadata.get("uuid"),
+            Some(&"my-uuid".to_string())
+        );
     }
 
     #[test]
@@ -371,11 +386,23 @@ mod tests {
         assert_eq!(SuccessActionStatus::Status200.to_string(), "200");
         assert_eq!(SuccessActionStatus::Status201.to_string(), "201");
         assert_eq!(SuccessActionStatus::Status204.to_string(), "204");
-        
-        assert_eq!(SuccessActionStatus::from("200"), SuccessActionStatus::Status200);
-        assert_eq!(SuccessActionStatus::from("201"), SuccessActionStatus::Status201);
-        assert_eq!(SuccessActionStatus::from("204"), SuccessActionStatus::Status204);
-        assert_eq!(SuccessActionStatus::from("invalid"), SuccessActionStatus::Status204);
+
+        assert_eq!(
+            SuccessActionStatus::from("200"),
+            SuccessActionStatus::Status200
+        );
+        assert_eq!(
+            SuccessActionStatus::from("201"),
+            SuccessActionStatus::Status201
+        );
+        assert_eq!(
+            SuccessActionStatus::from("204"),
+            SuccessActionStatus::Status204
+        );
+        assert_eq!(
+            SuccessActionStatus::from("invalid"),
+            SuccessActionStatus::Status204
+        );
     }
 
     #[test]

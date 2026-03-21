@@ -133,7 +133,10 @@ impl RestoreObjectFluentBuilder {
     pub async fn send(self) -> Result<RestoreObjectOutput, OSSError> {
         let bucket = self.inner.bucket.ok_or(OSSError::BucketNotSet)?;
         let key = self.inner.key.ok_or(OSSError::KeyNotSet)?;
-        let days = self.inner.days.ok_or_else(|| OSSError::InvalidInput("days is required".to_string()))?;
+        let days = self
+            .inner
+            .days
+            .ok_or_else(|| OSSError::InvalidInput("days is required".to_string()))?;
 
         // 构建 XML 请求体
         let xml_body = to_restore_xml(days, self.inner.tier);
@@ -151,11 +154,17 @@ impl RestoreObjectFluentBuilder {
         let mut headers = HeaderMap::new();
         headers.insert(
             "Content-Type",
-            "application/xml".parse().map_err(|e| OSSError::InvalidHeaderValue(e))?,
+            "application/xml"
+                .parse()
+                .map_err(|e| OSSError::InvalidHeaderValue(e))?,
         );
         headers.insert(
             "Content-Length",
-            xml_body.len().to_string().parse().map_err(|e| OSSError::InvalidHeaderValue(e))?,
+            xml_body
+                .len()
+                .to_string()
+                .parse()
+                .map_err(|e| OSSError::InvalidHeaderValue(e))?,
         );
 
         let req = self.handle.build_request(
@@ -214,13 +223,11 @@ impl RestoreObjectFluentBuilder {
                     raw_response: serde_json::Value::Null,
                 })
             }
-            _ => {
-                Err(OSSError::Object {
-                    status_code: status,
-                    message: "Restore object failed".to_string(),
-                    raw_response: serde_json::Value::Null,
-                })
-            }
+            _ => Err(OSSError::Object {
+                status_code: status,
+                message: "Restore object failed".to_string(),
+                raw_response: serde_json::Value::Null,
+            }),
         }
     }
 }
@@ -239,7 +246,8 @@ mod tests {
 
         let client = super::super::Client::from_config(config).unwrap();
 
-        let builder = client.restore_object()
+        let builder = client
+            .restore_object()
             .bucket("my-bucket")
             .key("my-object.txt")
             .days(7);
@@ -259,7 +267,8 @@ mod tests {
 
         let client = super::super::Client::from_config(config).unwrap();
 
-        let builder = client.restore_object()
+        let builder = client
+            .restore_object()
             .bucket("my-bucket")
             .key("my-object.txt")
             .days(30)

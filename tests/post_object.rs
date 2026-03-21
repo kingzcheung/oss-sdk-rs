@@ -9,12 +9,13 @@ use oss_sdk_rs::SuccessActionStatus;
 async fn test_post_object() {
     dotenvy::dotenv().ok();
     let client = create_oss_client();
-    
+
     // 上传一个对象
     let test_key = "test-post-object.txt";
     let test_content = "Hello, PostObject test!";
-    
-    let output = client.post_object()
+
+    let output = client
+        .post_object()
         .bucket(&std::env::var("OSS_BUCKET").unwrap())
         .key(test_key)
         .body(test_content.as_bytes().to_vec())
@@ -34,7 +35,8 @@ async fn test_post_object() {
     println!("Request-ID: {:?}", output.request_id);
 
     // 清理测试对象
-    client.delete_object()
+    client
+        .delete_object()
         .bucket(&std::env::var("OSS_BUCKET").unwrap())
         .key(test_key)
         .send()
@@ -46,12 +48,13 @@ async fn test_post_object() {
 async fn test_post_object_with_metadata() {
     dotenvy::dotenv().ok();
     let client = create_oss_client();
-    
+
     // 上传一个带元数据的对象
     let test_key = "test-post-object-metadata.txt";
     let test_content = "Hello, PostObject with metadata!";
-    
-    let output = client.post_object()
+
+    let output = client
+        .post_object()
         .bucket(&std::env::var("OSS_BUCKET").unwrap())
         .key(test_key)
         .body(test_content.as_bytes().to_vec())
@@ -69,7 +72,8 @@ async fn test_post_object_with_metadata() {
     println!("ETag: {:?}", output.etag);
 
     // 清理测试对象
-    client.delete_object()
+    client
+        .delete_object()
         .bucket(&std::env::var("OSS_BUCKET").unwrap())
         .key(test_key)
         .send()
@@ -81,12 +85,13 @@ async fn test_post_object_with_metadata() {
 async fn test_post_object_with_storage_class() {
     dotenvy::dotenv().ok();
     let client = create_oss_client();
-    
+
     // 上传一个指定存储类型的对象
     let test_key = "test-post-object-storage-class.txt";
     let test_content = "Hello, PostObject with storage class!";
-    
-    let output = client.post_object()
+
+    let output = client
+        .post_object()
         .bucket(&std::env::var("OSS_BUCKET").unwrap())
         .key(test_key)
         .body(test_content.as_bytes().to_vec())
@@ -102,7 +107,8 @@ async fn test_post_object_with_storage_class() {
     println!("ETag: {:?}", output.etag);
 
     // 清理测试对象
-    client.delete_object()
+    client
+        .delete_object()
         .bucket(&std::env::var("OSS_BUCKET").unwrap())
         .key(test_key)
         .send()

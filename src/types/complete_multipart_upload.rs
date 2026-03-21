@@ -240,7 +240,10 @@ mod tests {
         assert_eq!(ObjectAcl::from("default"), ObjectAcl::Default);
         assert_eq!(ObjectAcl::from("private"), ObjectAcl::Private);
         assert_eq!(ObjectAcl::from("public-read"), ObjectAcl::PublicRead);
-        assert_eq!(ObjectAcl::from("public-read-write"), ObjectAcl::PublicReadWrite);
+        assert_eq!(
+            ObjectAcl::from("public-read-write"),
+            ObjectAcl::PublicReadWrite
+        );
         assert_eq!(ObjectAcl::from("unknown"), ObjectAcl::Default);
     }
 
@@ -316,7 +319,10 @@ mod tests {
             .build();
 
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err(), "parts is required when complete_all is false");
+        assert_eq!(
+            result.unwrap_err(),
+            "parts is required when complete_all is false"
+        );
     }
 
     #[test]
@@ -345,7 +351,10 @@ mod tests {
 </CompleteMultipartUploadResult>"#;
 
         let output: CompleteMultipartUploadOutput = quick_xml::de::from_str(xml).unwrap();
-        assert_eq!(output.location, "http://oss-example.oss-cn-hangzhou.aliyuncs.com/multipart.data");
+        assert_eq!(
+            output.location,
+            "http://oss-example.oss-cn-hangzhou.aliyuncs.com/multipart.data"
+        );
         assert_eq!(output.bucket, "oss-example");
         assert_eq!(output.key, "multipart.data");
         assert_eq!(output.etag, "\"B864DB6A936D376F9F8D3ED3BBE540****\"");

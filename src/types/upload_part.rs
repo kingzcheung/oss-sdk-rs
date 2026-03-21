@@ -172,7 +172,10 @@ mod tests {
             .build();
 
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err(), "part_number must be between 1 and 10000");
+        assert_eq!(
+            result.unwrap_err(),
+            "part_number must be between 1 and 10000"
+        );
     }
 
     #[test]
@@ -185,7 +188,10 @@ mod tests {
             .build();
 
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err(), "part_number must be between 1 and 10000");
+        assert_eq!(
+            result.unwrap_err(),
+            "part_number must be between 1 and 10000"
+        );
     }
 
     #[test]

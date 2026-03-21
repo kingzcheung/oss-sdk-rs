@@ -51,7 +51,11 @@ impl DeleteMultipleObjectsInputBuilder {
     }
 
     /// 添加要删除的 Object（带版本 ID）
-    pub fn object_with_version(mut self, key: impl Into<String>, version_id: impl Into<String>) -> Self {
+    pub fn object_with_version(
+        mut self,
+        key: impl Into<String>,
+        version_id: impl Into<String>,
+    ) -> Self {
         self.objects.push(ObjectIdentifier {
             key: key.into(),
             version_id: Some(version_id.into()),
@@ -80,12 +84,12 @@ impl DeleteMultipleObjectsInputBuilder {
     /// 构建 DeleteMultipleObjectsInput
     pub fn build(self) -> Result<DeleteMultipleObjectsInput, &'static str> {
         let bucket = self.bucket.ok_or("bucket is required")?;
-        
+
         // 最多允许删除 1000 个文件
         if self.objects.len() > 1000 {
             return Err("maximum 1000 objects allowed per request");
         }
-        
+
         Ok(DeleteMultipleObjectsInput {
             bucket,
             objects: self.objects,
@@ -143,7 +147,7 @@ pub fn to_xml(input: &DeleteMultipleObjectsInput) -> Result<String, quick_xml::D
         objects: input.objects.clone(),
         encoding_type: input.encoding_type.clone(),
     };
-    
+
     let mut xml = String::from("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
     let serialized = quick_xml::se::to_string(&request)?;
     xml.push_str(&serialized);
@@ -178,7 +182,10 @@ pub struct DeletedObject {
     #[serde(rename = "DeleteMarker", skip_serializing_if = "Option::is_none")]
     pub delete_marker: Option<bool>,
     /// 删除标记的版本 ID
-    #[serde(rename = "DeleteMarkerVersionId", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        rename = "DeleteMarkerVersionId",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub delete_marker_version_id: Option<String>,
 }
 
@@ -210,9 +217,7 @@ mod tests {
     fn test_to_xml_quiet_mode() {
         let input = DeleteMultipleObjectsInput {
             bucket: "test-bucket".to_string(),
-            objects: vec![
-                ObjectIdentifier::new("multipart.data"),
-            ],
+            objects: vec![ObjectIdentifier::new("multipart.data")],
             quiet: true,
             encoding_type: None,
         };
@@ -225,9 +230,10 @@ mod tests {
     fn test_to_xml_with_version_id() {
         let input = DeleteMultipleObjectsInput {
             bucket: "test-bucket".to_string(),
-            objects: vec![
-                ObjectIdentifier::with_version("multipart.data", "123456789"),
-            ],
+            objects: vec![ObjectIdentifier::with_version(
+                "multipart.data",
+                "123456789",
+            )],
             quiet: false,
             encoding_type: None,
         };
@@ -294,7 +300,10 @@ mod tests {
         let output: DeleteMultipleObjectsOutput = quick_xml::de::from_str(xml).unwrap();
         assert_eq!(output.deleted.len(), 1);
         assert_eq!(output.deleted[0].key, "multipart.data");
-        assert_eq!(output.deleted[0].version_id, Some("CAEQNRiBgIDyz.6C0BYiIGQ2NWEwNmVhNTA3ZTQ3MzM5ODliYjM1ZTdjYjA4****".to_string()));
+        assert_eq!(
+            output.deleted[0].version_id,
+            Some("CAEQNRiBgIDyz.6C0BYiIGQ2NWEwNmVhNTA3ZTQ3MzM5ODliYjM1ZTdjYjA4****".to_string())
+        );
     }
 
     #[test]
@@ -316,16 +325,18 @@ mod tests {
 
     #[test]
     fn test_max_objects_limit() {
-        let mut builder = DeleteMultipleObjectsInput::builder()
-            .bucket("test-bucket");
-        
+        let mut builder = DeleteMultipleObjectsInput::builder().bucket("test-bucket");
+
         // 添加 1001 个对象
         for i in 0..1001 {
             builder = builder.object(format!("file{}.txt", i));
         }
-        
+
         let result = builder.build();
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err(), "maximum 1000 objects allowed per request");
+        assert_eq!(
+            result.unwrap_err(),
+            "maximum 1000 objects allowed per request"
+        );
     }
 }

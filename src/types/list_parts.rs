@@ -23,7 +23,11 @@ pub struct ListPartsInput {
 
 impl ListPartsInput {
     /// 创建新的输入
-    pub fn new(bucket: impl Into<String>, key: impl Into<String>, upload_id: impl Into<String>) -> Self {
+    pub fn new(
+        bucket: impl Into<String>,
+        key: impl Into<String>,
+        upload_id: impl Into<String>,
+    ) -> Self {
         Self {
             bucket: bucket.into(),
             key: key.into(),

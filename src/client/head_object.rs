@@ -126,33 +126,45 @@ impl HeadObjectFluentBuilder {
         if let Some(if_modified_since) = &self.inner.if_modified_since {
             headers.insert(
                 "If-Modified-Since",
-                if_modified_since.parse().map_err(|e| OSSError::InvalidHeaderValue(e))?,
+                if_modified_since
+                    .parse()
+                    .map_err(|e| OSSError::InvalidHeaderValue(e))?,
             );
         }
 
         if let Some(if_unmodified_since) = &self.inner.if_unmodified_since {
             headers.insert(
                 "If-Unmodified-Since",
-                if_unmodified_since.parse().map_err(|e| OSSError::InvalidHeaderValue(e))?,
+                if_unmodified_since
+                    .parse()
+                    .map_err(|e| OSSError::InvalidHeaderValue(e))?,
             );
         }
 
         if let Some(if_match) = &self.inner.if_match {
             headers.insert(
                 "If-Match",
-                if_match.parse().map_err(|e| OSSError::InvalidHeaderValue(e))?,
+                if_match
+                    .parse()
+                    .map_err(|e| OSSError::InvalidHeaderValue(e))?,
             );
         }
 
         if let Some(if_none_match) = &self.inner.if_none_match {
             headers.insert(
                 "If-None-Match",
-                if_none_match.parse().map_err(|e| OSSError::InvalidHeaderValue(e))?,
+                if_none_match
+                    .parse()
+                    .map_err(|e| OSSError::InvalidHeaderValue(e))?,
             );
         }
 
         // 构建查询参数
-        let query = self.inner.version_id.as_ref().map(|v| format!("versionId={}", v));
+        let query = self
+            .inner
+            .version_id
+            .as_ref()
+            .map(|v| format!("versionId={}", v));
 
         let req = self.handle.build_request(
             HttpMethod::Head,
@@ -197,13 +209,11 @@ impl HeadObjectFluentBuilder {
                     raw_response: serde_json::Value::Null,
                 })
             }
-            _ => {
-                Err(OSSError::Object {
-                    status_code: status,
-                    message: "Head object failed".to_string(),
-                    raw_response: serde_json::Value::Null,
-                })
-            }
+            _ => Err(OSSError::Object {
+                status_code: status,
+                message: "Head object failed".to_string(),
+                raw_response: serde_json::Value::Null,
+            }),
         }
     }
 }

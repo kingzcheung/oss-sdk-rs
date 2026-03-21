@@ -114,9 +114,7 @@ mod tests {
 
     #[test]
     fn test_input_builder_missing_bucket() {
-        let result = GetObjectMetaInput::builder()
-            .key("my-object.txt")
-            .build();
+        let result = GetObjectMetaInput::builder().key("my-object.txt").build();
 
         assert!(result.is_err());
         assert_eq!(result.unwrap_err(), "bucket is required");
@@ -124,9 +122,7 @@ mod tests {
 
     #[test]
     fn test_input_builder_missing_key() {
-        let result = GetObjectMetaInput::builder()
-            .bucket("my-bucket")
-            .build();
+        let result = GetObjectMetaInput::builder().bucket("my-bucket").build();
 
         assert!(result.is_err());
         assert_eq!(result.unwrap_err(), "key is required");

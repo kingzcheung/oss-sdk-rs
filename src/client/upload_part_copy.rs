@@ -190,18 +190,22 @@ impl UploadPartCopyFluentBuilder {
     pub async fn send(self) -> Result<UploadPartCopyResponse, OSSError> {
         let bucket = self.inner.bucket.ok_or(OSSError::BucketNotSet)?;
         let key = self.inner.key.ok_or(OSSError::KeyNotSet)?;
-        let upload_id = self.inner.upload_id.ok_or_else(|| {
-            OSSError::InvalidInput("upload_id is required".to_string())
-        })?;
-        let part_number = self.inner.part_number.ok_or_else(|| {
-            OSSError::InvalidInput("part_number is required".to_string())
-        })?;
-        let source_bucket = self.inner.source_bucket.ok_or_else(|| {
-            OSSError::InvalidInput("source_bucket is required".to_string())
-        })?;
-        let source_key = self.inner.source_key.ok_or_else(|| {
-            OSSError::InvalidInput("source_key is required".to_string())
-        })?;
+        let upload_id = self
+            .inner
+            .upload_id
+            .ok_or_else(|| OSSError::InvalidInput("upload_id is required".to_string()))?;
+        let part_number = self
+            .inner
+            .part_number
+            .ok_or_else(|| OSSError::InvalidInput("part_number is required".to_string()))?;
+        let source_bucket = self
+            .inner
+            .source_bucket
+            .ok_or_else(|| OSSError::InvalidInput("source_bucket is required".to_string()))?;
+        let source_key = self
+            .inner
+            .source_key
+            .ok_or_else(|| OSSError::InvalidInput("source_key is required".to_string()))?;
 
         // 验证 part_number 范围
         if part_number < 1 || part_number > 10000 {
@@ -226,7 +230,9 @@ impl UploadPartCopyFluentBuilder {
         };
         headers.insert(
             "x-oss-copy-source",
-            copy_source.parse().map_err(|e| OSSError::InvalidHeaderValue(e))?,
+            copy_source
+                .parse()
+                .map_err(|e| OSSError::InvalidHeaderValue(e))?,
         );
 
         // 设置拷贝范围
@@ -325,7 +331,8 @@ mod tests {
 
         let client = super::super::Client::from_config(config).unwrap();
 
-        let builder = client.upload_part_copy()
+        let builder = client
+            .upload_part_copy()
             .bucket("dest-bucket")
             .key("dest-object.zip")
             .upload_id("upload-id")
@@ -351,7 +358,8 @@ mod tests {
 
         let client = super::super::Client::from_config(config).unwrap();
 
-        let builder = client.upload_part_copy()
+        let builder = client
+            .upload_part_copy()
             .bucket("dest-bucket")
             .key("dest-object.zip")
             .upload_id("upload-id")
@@ -362,8 +370,17 @@ mod tests {
             .copy_source_range_bytes(100, 6291756)
             .copy_source_if_match("etag-123");
 
-        assert_eq!(builder.inner.source_version_id, Some("version-123".to_string()));
-        assert_eq!(builder.inner.copy_source_range, Some("bytes=100-6291756".to_string()));
-        assert_eq!(builder.inner.copy_source_if_match, Some("etag-123".to_string()));
+        assert_eq!(
+            builder.inner.source_version_id,
+            Some("version-123".to_string())
+        );
+        assert_eq!(
+            builder.inner.copy_source_range,
+            Some("bytes=100-6291756".to_string())
+        );
+        assert_eq!(
+            builder.inner.copy_source_if_match,
+            Some("etag-123".to_string())
+        );
     }
 }

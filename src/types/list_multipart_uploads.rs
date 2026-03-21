@@ -163,7 +163,10 @@ mod tests {
         assert!(!output.is_truncated);
         assert_eq!(output.uploads.len(), 3);
         assert_eq!(output.uploads[0].key, "multipart.data");
-        assert_eq!(output.uploads[0].upload_id, "0004B999EF518A1FE585B0C9360DC4C8");
+        assert_eq!(
+            output.uploads[0].upload_id,
+            "0004B999EF518A1FE585B0C9360DC4C8"
+        );
         assert_eq!(output.uploads[0].initiated, "2012-02-23T04:18:23.000Z");
         assert_eq!(output.next_key_marker, Some("oss.avi".to_string()));
     }

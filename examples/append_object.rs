@@ -8,7 +8,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // 从环境变量加载配置
     let access_key_id = std::env::var("OSS_ACCESS_KEY_ID")?;
     let access_key_secret = std::env::var("OSS_ACCESS_KEY_SECRET")?;
-    let endpoint = std::env::var("OSS_ENDPOINT").unwrap_or_else(|_| "https://oss-cn-hangzhou.aliyuncs.com".to_string());
+    let endpoint = std::env::var("OSS_ENDPOINT")
+        .unwrap_or_else(|_| "https://oss-cn-hangzhou.aliyuncs.com".to_string());
     let bucket = std::env::var("OSS_BUCKET").unwrap_or_else(|_| "my-bucket".to_string());
 
     // 创建凭证
@@ -27,17 +28,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let key = "examples/append_demo.txt";
 
     // 清理可能存在的旧对象
-    let _ = client.delete_object()
-        .bucket(&bucket)
-        .key(key)
-        .send()
-        .await;
+    let _ = client.delete_object().bucket(&bucket).key(key).send().await;
 
     println!("=== AppendObject 示例 ===\n");
 
     // 首次追加（position = 0）
     println!("1. 首次追加 (position=0)");
-    let output = client.append_object()
+    let output = client
+        .append_object()
         .bucket(&bucket)
         .key(key)
         .position(0)
@@ -54,7 +52,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // 第二次追加
     println!("\n2. 第二次追加 (position={})", next_pos);
-    let output = client.append_object()
+    let output = client
+        .append_object()
         .bucket(&bucket)
         .key(key)
         .position(next_pos)
@@ -67,7 +66,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // 第三次追加
     println!("\n3. 第三次追加 (position={})", next_pos);
-    let output = client.append_object()
+    let output = client
+        .append_object()
         .bucket(&bucket)
         .key(key)
         .position(next_pos)
@@ -79,11 +79,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // 读取最终内容
     println!("\n4. 读取最终内容");
-    let get_output = client.get_object()
-        .bucket(&bucket)
-        .key(key)
-        .send()
-        .await?;
+    let get_output = client.get_object().bucket(&bucket).key(key).send().await?;
 
     let body = get_output.body.collect().await?;
     let content = String::from_utf8(body.to_vec())?;
@@ -91,7 +87,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // 清理
     println!("\n5. 清理测试文件");
-    client.delete_object()
+    client
+        .delete_object()
         .bucket(&bucket)
         .key(key)
         .send()
