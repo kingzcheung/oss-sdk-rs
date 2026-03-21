@@ -1,25 +1,25 @@
-//! GetBucketInfo 操作实现
-//! 获取 Bucket 的详细信息
+//! GetBucketStat 操作实现
+//! 获取指定 Bucket 的存储容量、文件以及 Multipart 分片数量
 
 use std::sync::Arc;
 
 use crate::client::{Handle, HttpMethod};
 use crate::errors::OSSError;
-use crate::types::GetBucketInfoOutput;
+use crate::types::GetBucketStatOutput;
 
-/// GetBucketInfo Fluent Builder
+/// GetBucketStat Fluent Builder
 #[derive(Debug)]
-pub struct GetBucketInfoFluentBuilder {
+pub struct GetBucketStatFluentBuilder {
     handle: Arc<Handle>,
-    inner: GetBucketInfoInputBuilder,
+    inner: GetBucketStatInputBuilder,
 }
 
 #[derive(Debug, Default)]
-struct GetBucketInfoInputBuilder {
+struct GetBucketStatInputBuilder {
     bucket: Option<String>,
 }
 
-impl GetBucketInfoFluentBuilder {
+impl GetBucketStatFluentBuilder {
     pub(crate) fn new(handle: Arc<Handle>) -> Self {
         Self {
             handle,
@@ -37,38 +37,46 @@ impl GetBucketInfoFluentBuilder {
     ///
     /// # 返回
     ///
-    /// 返回 `GetBucketInfoOutput`，包含 Bucket 的详细信息
+    /// 返回 `GetBucketStatOutput`，包含 Bucket 的存储统计信息
     ///
     /// # 错误
     ///
     /// 如果请求失败，返回 `OSSError`
+    ///
+    /// # 注意事项
+    ///
+    /// - 调用该接口获取的数据并非是实时数据，延时可能超过一个小时
+    /// - 调用该接口获取到的存储信息的时间点不保证是最新的
     ///
     /// # 示例
     ///
     /// ```no_run
     /// use oss_sdk_rs::Client;
     /// # async fn example(client: Client) -> Result<(), Box<dyn std::error::Error>> {
-    /// let output = client.get_bucket_info()
+    /// let output = client.get_bucket_stat()
     ///     .bucket("my-bucket")
     ///     .send()
     ///     .await?;
     ///
-    /// println!("Bucket name: {}", output.bucket.name);
-    /// println!("Location: {}", output.bucket.location);
-    /// println!("Storage class: {}", output.bucket.storage_class);
+    /// if let Some(storage) = output.storage {
+    ///     println!("Storage: {} bytes", storage);
+    /// }
+    /// if let Some(count) = output.object_count {
+    ///     println!("Object count: {}", count);
+    /// }
     /// # Ok(())
     /// # }
     /// ```
-    pub async fn send(self) -> Result<GetBucketInfoOutput, OSSError> {
+    pub async fn send(self) -> Result<GetBucketStatOutput, OSSError> {
         let bucket = self.inner.bucket.ok_or_else(|| {
-            OSSError::Config("bucket is required for get_bucket_info".to_string())
+            OSSError::Config("bucket is required for get_bucket_stat".to_string())
         })?;
 
         // 构建查询参数
-        // GET /?bucketInfo
-        let query = "bucketInfo";
+        // GET /?stat
+        let query = "stat";
 
-        // GetBucketInfo 请求需要指定 bucket
+        // GetBucketStat 请求需要指定 bucket
         let req = self.handle.build_request(
             HttpMethod::Get,
             "/",
@@ -83,7 +91,7 @@ impl GetBucketInfoFluentBuilder {
 
         if status.is_success() {
             let text = resp.text().await?;
-            let output: GetBucketInfoOutput =
+            let output: GetBucketStatOutput =
                 quick_xml::de::from_str(&text).map_err(|e| OSSError::XmlParse(e.to_string()))?;
             Ok(output)
         } else {

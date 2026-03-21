@@ -12,12 +12,12 @@ async fn test_put_object() -> Result<(), OSSError> {
     let oss = create_oss_client();
     let bucket = env::var("OSS_BUCKET").unwrap();
     oss.put_object()
-    .bucket(&bucket)
-    .key(object_name)
-    .body(buffer.as_bytes().to_vec())
-    .send()
-    .await?;
-   
+        .bucket(&bucket)
+        .key(object_name)
+        .body(buffer.as_bytes().to_vec())
+        .send()
+        .await?;
+
     Ok(())
 }
 
@@ -87,13 +87,18 @@ async fn test_get_object() -> Result<(), OSSError> {
     let oss = create_oss_client();
     let object_name = "test/1665375734.jpg";
 
-// GET /oss.jpg HTTP/1.1
-// Host: oss-example.oss-cn-hangzhou.aliyuncs.com
-// Date: Tue, 20 Dec 2022 08:48:18 GMT
-// Authorization: OSS4-HMAC-SHA256 Credential=AK**ID/20221220/us-east-1/oss/aliyun_v4_request,AdditionalHeaders=host,Signature=18**0a
-// x-oss-content-sha256: UNSIGNED-PAYLOAD
+    // GET /oss.jpg HTTP/1.1
+    // Host: oss-example.oss-cn-hangzhou.aliyuncs.com
+    // Date: Tue, 20 Dec 2022 08:48:18 GMT
+    // Authorization: OSS4-HMAC-SHA256 Credential=AK**ID/20221220/us-east-1/oss/aliyun_v4_request,AdditionalHeaders=host,Signature=18**0a
+    // x-oss-content-sha256: UNSIGNED-PAYLOAD
 
-    let r = oss.get_object().bucket("tris").key(object_name).send().await?;
+    let r = oss
+        .get_object()
+        .bucket("tris")
+        .key(object_name)
+        .send()
+        .await?;
     let body = r.body.collect().await.map_err(|e| OSSError::Io(e))?;
     let _ = std::fs::write("result.jpg", body);
     Ok(())

@@ -36,7 +36,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("List objects success:");
     println!("  Bucket: {}", output.name);
     println!("  Is truncated: {}", output.is_truncated);
-    
+
     if let Some(contents) = output.contents {
         for object in contents {
             println!("  - Key: {}, Size: {}", object.key, object.size);

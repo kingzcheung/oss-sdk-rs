@@ -87,5 +87,5 @@ pub const OSS_SIGNATURE_VERSION: &str = "x-oss-signature-version";
 pub const OSS_CREDENTIAL: &str = "x-oss-credential";
 pub const OSS_EXPIRES_V4: &str = "x-oss-expires";
 pub const OSS_SIGNATURE_V4: &str = "x-oss-signature";
-pub const ALIYUN_V4_PREFIX:&str = "aliyun_v4";
-pub const ALIYUN_V4_REQUEST:&str = "aliyun_v4_request";
+pub const ALIYUN_V4_PREFIX: &str = "aliyun_v4";
+pub const ALIYUN_V4_REQUEST: &str = "aliyun_v4_request";

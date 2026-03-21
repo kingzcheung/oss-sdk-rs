@@ -52,13 +52,14 @@ impl CopyObjectFluentBuilder {
     pub async fn send(self) -> Result<CopyObjectOutput, OSSError> {
         let bucket = self.inner.bucket.ok_or(OSSError::BucketNotSet)?;
         let key = self.inner.key.ok_or(OSSError::KeyNotSet)?;
-        let copy_source = self.inner.copy_source.ok_or_else(|| {
-            OSSError::Config("copy_source is required".to_string())
-        })?;
+        let copy_source = self
+            .inner
+            .copy_source
+            .ok_or_else(|| OSSError::Config("copy_source is required".to_string()))?;
 
         let uri = format!("/{}", key);
         let mut headers = HeaderMap::new();
-        
+
         // x-oss-copy-source 格式必须以 / 开头，如：/source-bucket/source-key
         let copy_source_value = if copy_source.starts_with('/') {
             copy_source
@@ -67,7 +68,8 @@ impl CopyObjectFluentBuilder {
         };
         headers.insert(
             "x-oss-copy-source",
-            HeaderValue::from_str(&copy_source_value).map_err(|e| OSSError::InvalidHeaderValue(e))?,
+            HeaderValue::from_str(&copy_source_value)
+                .map_err(|e| OSSError::InvalidHeaderValue(e))?,
         );
 
         let req = self.handle.build_request(

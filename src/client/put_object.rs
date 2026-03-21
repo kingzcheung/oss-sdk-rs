@@ -6,7 +6,7 @@ use reqwest::header::{HeaderMap, HeaderValue, CONTENT_DISPOSITION, CONTENT_ENCOD
 
 use crate::client::{Handle, HttpMethod};
 use crate::errors::OSSError;
-use crate::types::{PutObjectInput, PutObjectOutput, ContentDisposition};
+use crate::types::{ContentDisposition, PutObjectInput, PutObjectOutput};
 
 /// PutObject Fluent Builder
 #[derive(Debug)]
@@ -101,9 +101,10 @@ impl PutObjectFluentBuilder {
             key,
             body: crate::primitives::ByteStream::from_vec(body),
             content_type: self.inner.content_type,
-            content_disposition: self.inner.content_disposition.map(|s| {
-                ContentDisposition::AttachmentWithFileName(s)
-            }),
+            content_disposition: self
+                .inner
+                .content_disposition
+                .map(|s| ContentDisposition::AttachmentWithFileName(s)),
             content_encoding: None,
             storage_class: None,
             acl: None,
@@ -115,7 +116,10 @@ impl PutObjectFluentBuilder {
     }
 }
 
-async fn run_operation(input: PutObjectInput, handle: Arc<Handle>) -> Result<PutObjectOutput, OSSError> {
+async fn run_operation(
+    input: PutObjectInput,
+    handle: Arc<Handle>,
+) -> Result<PutObjectOutput, OSSError> {
     let object_key = &input.key;
     let mut headers = HeaderMap::new();
 
@@ -131,7 +135,8 @@ async fn run_operation(input: PutObjectInput, handle: Arc<Handle>) -> Result<Put
     if let Some(storage_class) = &input.storage_class {
         headers.insert(
             "x-oss-storage-class",
-            HeaderValue::from_str(&storage_class.to_string()).map_err(|e| OSSError::InvalidHeaderValue(e))?,
+            HeaderValue::from_str(&storage_class.to_string())
+                .map_err(|e| OSSError::InvalidHeaderValue(e))?,
         );
     }
 
@@ -139,7 +144,8 @@ async fn run_operation(input: PutObjectInput, handle: Arc<Handle>) -> Result<Put
     if let Some(content_disposition) = &input.content_disposition {
         headers.insert(
             CONTENT_DISPOSITION,
-            HeaderValue::from_str(&content_disposition.to_string()).map_err(|e| OSSError::InvalidHeaderValue(e))?,
+            HeaderValue::from_str(&content_disposition.to_string())
+                .map_err(|e| OSSError::InvalidHeaderValue(e))?,
         );
     }
 
@@ -147,16 +153,14 @@ async fn run_operation(input: PutObjectInput, handle: Arc<Handle>) -> Result<Put
     if let Some(content_encoding) = &input.content_encoding {
         headers.insert(
             CONTENT_ENCODING,
-            HeaderValue::from_str(&content_encoding.to_string()).map_err(|e| OSSError::InvalidHeaderValue(e))?,
+            HeaderValue::from_str(&content_encoding.to_string())
+                .map_err(|e| OSSError::InvalidHeaderValue(e))?,
         );
     }
 
     // 设置禁止覆盖
     if input.forbid_overwrite {
-        headers.insert(
-            "x-oss-forbid-overwrite",
-            HeaderValue::from_static("true"),
-        );
+        headers.insert("x-oss-forbid-overwrite", HeaderValue::from_static("true"));
     }
 
     // 设置 Content-Type

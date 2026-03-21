@@ -1,7 +1,7 @@
 //! GetObject Input/Output 类型定义
 
-use bytes::Bytes;
 use crate::primitives::ByteStream;
+use bytes::Bytes;
 
 /// GetObject 操作输入
 #[derive(Debug, Clone)]

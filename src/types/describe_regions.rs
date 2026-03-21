@@ -88,13 +88,16 @@ mod tests {
 
         let output: DescribeRegionsOutput = quick_xml::de::from_str(xml).unwrap();
         assert_eq!(output.region_info_list.len(), 2);
-        
+
         let first = &output.region_info_list[0];
         assert_eq!(first.region, "oss-cn-hangzhou");
         assert_eq!(first.internet_endpoint, "oss-cn-hangzhou.aliyuncs.com");
-        assert_eq!(first.internal_endpoint, "oss-cn-hangzhou-internal.aliyuncs.com");
+        assert_eq!(
+            first.internal_endpoint,
+            "oss-cn-hangzhou-internal.aliyuncs.com"
+        );
         assert_eq!(first.accelerate_endpoint, "oss-accelerate.aliyuncs.com");
-        
+
         let second = &output.region_info_list[1];
         assert_eq!(second.region, "oss-cn-shanghai");
         assert_eq!(second.internet_endpoint, "oss-cn-shanghai.aliyuncs.com");
@@ -114,11 +117,14 @@ mod tests {
 
         let output: DescribeRegionsOutput = quick_xml::de::from_str(xml).unwrap();
         assert_eq!(output.region_info_list.len(), 1);
-        
+
         let first = &output.region_info_list[0];
         assert_eq!(first.region, "oss-cn-hangzhou");
         assert_eq!(first.internet_endpoint, "oss-cn-hangzhou.aliyuncs.com");
-        assert_eq!(first.internal_endpoint, "oss-cn-hangzhou-internal.aliyuncs.com");
+        assert_eq!(
+            first.internal_endpoint,
+            "oss-cn-hangzhou-internal.aliyuncs.com"
+        );
         assert_eq!(first.accelerate_endpoint, "oss-accelerate.aliyuncs.com");
     }
 }

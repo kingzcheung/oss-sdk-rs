@@ -62,7 +62,7 @@ fn extract_region_from_endpoint(endpoint: &str) -> Option<String> {
         .strip_prefix("https://")
         .or_else(|| endpoint.strip_prefix("http://"))
         .unwrap_or(endpoint);
-    
+
     // OSS endpoint 格式: oss-cn-hangzhou.aliyuncs.com
     // 提取第一个点之前的部分
     if let Some(dot_pos) = host.find('.') {
@@ -146,29 +146,27 @@ pub fn from_env() -> Result<Config, &'static str> {
     let access_key_id = std::env::var("OSS_ACCESS_KEY_ID")
         .or_else(|_| std::env::var("OSS_AK"))
         .map_err(|_| "OSS_ACCESS_KEY_ID or OSS_AK not set")?;
-    
+
     let access_key_secret = std::env::var("OSS_ACCESS_KEY_SECRET")
         .or_else(|_| std::env::var("OSS_SK"))
         .map_err(|_| "OSS_ACCESS_KEY_SECRET or OSS_SK not set")?;
-    
-    let region = std::env::var("OSS_REGION")
-        .map(Region::new);
-    
+
+    let region = std::env::var("OSS_REGION").map(Region::new);
+
     let endpoint = std::env::var("OSS_ENDPOINT").ok();
 
     let credentials = Credentials::new(access_key_id, access_key_secret);
 
-    let mut builder = Config::builder()
-        .credentials(credentials);
-    
+    let mut builder = Config::builder().credentials(credentials);
+
     if let Ok(region) = region {
         builder = builder.region(region);
     }
-    
+
     if let Some(endpoint) = endpoint {
         builder = builder.endpoint(endpoint);
     }
-    
+
     builder.build()
 }
 

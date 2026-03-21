@@ -3,7 +3,6 @@ use std::env;
 
 use oss_sdk_rs::{Client, Config, Credentials};
 
-
 pub fn create_oss_client() -> Client {
     dotenvy::dotenv().unwrap();
     let key_id = env::var("OSS_ACCESS_KEY_ID").unwrap();
@@ -13,7 +12,7 @@ pub fn create_oss_client() -> Client {
     dbg!(&key_id, &key_secret, &endpoint);
 
     let credentials = Credentials::new(key_id, key_secret);
-    
+
     let config = Config::builder()
         .endpoint(endpoint)
         .credentials(credentials)

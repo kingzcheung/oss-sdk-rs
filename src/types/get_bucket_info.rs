@@ -214,26 +214,41 @@ mod tests {
 </BucketInfo>"#;
 
         let output: GetBucketInfoOutput = quick_xml::de::from_str(xml).unwrap();
-        
+
         assert_eq!(output.bucket.name, "oss-example");
         assert_eq!(output.bucket.creation_date, "2013-07-31T10:56:21.000Z");
-        assert_eq!(output.bucket.extranet_endpoint, "oss-cn-hangzhou.aliyuncs.com");
-        assert_eq!(output.bucket.intranet_endpoint, "oss-cn-hangzhou-internal.aliyuncs.com");
+        assert_eq!(
+            output.bucket.extranet_endpoint,
+            "oss-cn-hangzhou.aliyuncs.com"
+        );
+        assert_eq!(
+            output.bucket.intranet_endpoint,
+            "oss-cn-hangzhou-internal.aliyuncs.com"
+        );
         assert_eq!(output.bucket.location, "oss-cn-hangzhou");
         assert_eq!(output.bucket.storage_class, "Standard");
         assert_eq!(output.bucket.access_monitor, Some("Enabled".to_string()));
-        assert_eq!(output.bucket.transfer_acceleration, Some("Disabled".to_string()));
-        assert_eq!(output.bucket.cross_region_replication, Some("Disabled".to_string()));
-        assert_eq!(output.bucket.resource_group_id, Some("rg-aek27tc********".to_string()));
+        assert_eq!(
+            output.bucket.transfer_acceleration,
+            Some("Disabled".to_string())
+        );
+        assert_eq!(
+            output.bucket.cross_region_replication,
+            Some("Disabled".to_string())
+        );
+        assert_eq!(
+            output.bucket.resource_group_id,
+            Some("rg-aek27tc********".to_string())
+        );
         assert_eq!(output.bucket.owner.display_name, "username");
         assert_eq!(output.bucket.owner.id, "27183473914****");
         assert_eq!(output.bucket.access_control_list.grant, "private");
         assert_eq!(output.bucket.comment, Some("test".to_string()));
-        
+
         let policy = output.bucket.bucket_policy.unwrap();
         assert_eq!(policy.log_bucket, Some("examplebucket".to_string()));
         assert_eq!(policy.log_prefix, Some("log/".to_string()));
-        
+
         assert_eq!(output.bucket.block_public_access, Some(true));
     }
 }

@@ -16,10 +16,7 @@ pub struct Credentials {
 
 impl Credentials {
     /// 创建新的凭证
-    pub fn new(
-        access_key_id: impl Into<String>,
-        access_key_secret: impl Into<String>,
-    ) -> Self {
+    pub fn new(access_key_id: impl Into<String>, access_key_secret: impl Into<String>) -> Self {
         Self {
             access_key_id: access_key_id.into(),
             access_key_secret: access_key_secret.into(),
