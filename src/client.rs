@@ -12,6 +12,7 @@ mod get_bucket_info;
 mod get_bucket_location;
 mod get_bucket_stat;
 mod get_object;
+mod get_object_acl;
 mod get_object_meta;
 mod head_object;
 mod initiate_multipart_upload;
@@ -21,6 +22,7 @@ mod list_objects;
 mod list_parts;
 mod post_object;
 mod put_object;
+mod put_object_acl;
 mod restore_object;
 mod seal_append_object;
 mod upload_part;
@@ -50,6 +52,7 @@ pub use get_bucket_info::GetBucketInfoFluentBuilder;
 pub use get_bucket_location::GetBucketLocationFluentBuilder;
 pub use get_bucket_stat::GetBucketStatFluentBuilder;
 pub use get_object::GetObjectFluentBuilder;
+pub use get_object_acl::GetObjectAclFluentBuilder;
 pub use get_object_meta::GetObjectMetaFluentBuilder;
 pub use head_object::HeadObjectFluentBuilder;
 pub use initiate_multipart_upload::InitiateMultipartUploadFluentBuilder;
@@ -59,6 +62,7 @@ pub use list_objects::ListObjectsFluentBuilder;
 pub use list_parts::ListPartsFluentBuilder;
 pub use post_object::PostObjectFluentBuilder;
 pub use put_object::PutObjectFluentBuilder;
+pub use put_object_acl::PutObjectAclFluentBuilder;
 pub use restore_object::RestoreObjectFluentBuilder;
 pub use seal_append_object::SealAppendObjectFluentBuilder;
 pub use upload_part::UploadPartFluentBuilder;
@@ -352,6 +356,18 @@ impl Client {
     /// 列举指定 Upload ID 所属的所有已经上传成功 Part
     pub fn list_parts(&self) -> ListPartsFluentBuilder {
         ListPartsFluentBuilder::new(self.handle.clone())
+    }
+
+    /// PutObjectACL 操作
+    /// 修改文件（Object）的访问权限（ACL）
+    pub fn put_object_acl(&self) -> PutObjectAclFluentBuilder {
+        PutObjectAclFluentBuilder::new(self.handle.clone())
+    }
+
+    /// GetObjectACL 操作
+    /// 获取存储空间（Bucket）下某个文件（Object）的访问权限（ACL）
+    pub fn get_object_acl(&self) -> GetObjectAclFluentBuilder {
+        GetObjectAclFluentBuilder::new(self.handle.clone())
     }
 }
 
