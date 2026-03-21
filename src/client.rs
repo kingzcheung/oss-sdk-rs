@@ -10,6 +10,7 @@ mod get_bucket_info;
 mod get_bucket_location;
 mod get_bucket_stat;
 mod get_object;
+mod get_object_meta;
 mod head_object;
 mod list_buckets;
 mod list_objects;
@@ -38,6 +39,7 @@ pub use get_bucket_info::GetBucketInfoFluentBuilder;
 pub use get_bucket_location::GetBucketLocationFluentBuilder;
 pub use get_bucket_stat::GetBucketStatFluentBuilder;
 pub use get_object::GetObjectFluentBuilder;
+pub use get_object_meta::GetObjectMetaFluentBuilder;
 pub use head_object::HeadObjectFluentBuilder;
 pub use list_buckets::ListBucketsFluentBuilder;
 pub use list_objects::ListObjectsFluentBuilder;
@@ -231,6 +233,12 @@ impl Client {
     /// HeadObject 操作
     pub fn head_object(&self) -> HeadObjectFluentBuilder {
         HeadObjectFluentBuilder::new(self.handle.clone())
+    }
+
+    /// GetObjectMeta 操作
+    /// 获取文件的元数据信息，包括 ETag、Size、LastModified 信息，不返回文件内容
+    pub fn get_object_meta(&self) -> GetObjectMetaFluentBuilder {
+        GetObjectMetaFluentBuilder::new(self.handle.clone())
     }
 
     /// CopyObject 操作

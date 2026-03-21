@@ -23,9 +23,10 @@ pub use types::{
     DeleteMultipleObjectsOutput, DeleteObjectInput, DeleteObjectOutput, DeletedObject,
     DescribeRegionsInput, DescribeRegionsOutput, GetBucketInfoInput, GetBucketInfoOutput,
     GetBucketLocationInput, GetBucketLocationOutput, GetBucketStatInput, GetBucketStatOutput,
-    GetObjectInput, GetObjectOutput, HeadObjectInput, HeadObjectOutput, ListBucketsInput,
-    ListBucketsOutput, ListObjectsInput, ListObjectsOutput, Object, ObjectIdentifier, OwnerInfo,
-    PutObjectInput, PutObjectOutput, RegionInfo, SealAppendObjectInput, SealAppendObjectOutput,
+    GetObjectInput, GetObjectMetaInput, GetObjectMetaOutput, GetObjectOutput, HeadObjectInput,
+    HeadObjectOutput, HeadObjectStatus, ListBucketsInput, ListBucketsOutput, ListObjectsInput,
+    ListObjectsOutput, Object, ObjectIdentifier, ObjectType, OwnerInfo, PutObjectInput,
+    PutObjectOutput, RegionInfo, RestoreInfo, SealAppendObjectInput, SealAppendObjectOutput,
     ServerSideEncryptionRule,
 };
 
