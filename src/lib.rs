@@ -28,6 +28,7 @@ pub use types::{
     DescribeRegionsInput, DescribeRegionsOutput, RegionInfo,
     GetBucketInfoInput, GetBucketInfoOutput, BucketInfoDetail,
     OwnerInfo, AccessControlListInfo, ServerSideEncryptionRule, BucketPolicyInfo,
+    GetBucketLocationInput, GetBucketLocationOutput,
 };
 
 // 重导出 primitives
