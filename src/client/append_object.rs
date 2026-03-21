@@ -131,17 +131,17 @@ impl AppendObjectFluentBuilder {
     }
 
     /// 发送请求
-    /// 
+    ///
     /// # 返回
-    /// 
+    ///
     /// 返回 `AppendObjectOutput`，包含下一次追加位置等信息
-    /// 
+    ///
     /// # 错误
-    /// 
+    ///
     /// 如果请求失败，返回 `OSSError`
-    /// 
+    ///
     /// # 示例
-    /// 
+    ///
     /// ```no_run
     /// use oss_sdk_rs::Client;
     /// # async fn example(client: Client) -> Result<(), Box<dyn std::error::Error>> {
@@ -153,7 +153,7 @@ impl AppendObjectFluentBuilder {
     ///     .body(b"Hello ".to_vec())
     ///     .send()
     ///     .await?;
-    /// 
+    ///
     /// // 后续追加
     /// let next_pos = output.next_append_position.unwrap();
     /// let output = client.append_object()
@@ -167,18 +167,21 @@ impl AppendObjectFluentBuilder {
     /// # }
     /// ```
     pub async fn send(self) -> Result<AppendObjectOutput, OSSError> {
-        let bucket = self.inner.bucket.ok_or_else(|| {
-            OSSError::Config("bucket is required for append_object".to_string())
-        })?;
-        let key = self.inner.key.ok_or_else(|| {
-            OSSError::Config("key is required for append_object".to_string())
-        })?;
+        let bucket = self
+            .inner
+            .bucket
+            .ok_or_else(|| OSSError::Config("bucket is required for append_object".to_string()))?;
+        let key = self
+            .inner
+            .key
+            .ok_or_else(|| OSSError::Config("key is required for append_object".to_string()))?;
         let position = self.inner.position.ok_or_else(|| {
             OSSError::Config("position is required for append_object".to_string())
         })?;
-        let body = self.inner.body.ok_or_else(|| {
-            OSSError::Config("body is required for append_object".to_string())
-        })?;
+        let body = self
+            .inner
+            .body
+            .ok_or_else(|| OSSError::Config("body is required for append_object".to_string()))?;
 
         // 构建查询参数
         // POST /ObjectName?append&position=Position
@@ -190,8 +193,7 @@ impl AppendObjectFluentBuilder {
         if let Some(content_type) = &self.inner.content_type {
             headers.insert(
                 "Content-Type",
-                HeaderValue::from_str(content_type)
-                    .map_err(|e| OSSError::InvalidHeaderValue(e))?,
+                HeaderValue::from_str(content_type).map_err(|e| OSSError::InvalidHeaderValue(e))?,
             );
         }
 
@@ -214,32 +216,28 @@ impl AppendObjectFluentBuilder {
         if let Some(content_md5) = &self.inner.content_md5 {
             headers.insert(
                 "Content-MD5",
-                HeaderValue::from_str(content_md5)
-                    .map_err(|e| OSSError::InvalidHeaderValue(e))?,
+                HeaderValue::from_str(content_md5).map_err(|e| OSSError::InvalidHeaderValue(e))?,
             );
         }
 
         if let Some(expires) = &self.inner.expires {
             headers.insert(
                 "Expires",
-                HeaderValue::from_str(expires)
-                    .map_err(|e| OSSError::InvalidHeaderValue(e))?,
+                HeaderValue::from_str(expires).map_err(|e| OSSError::InvalidHeaderValue(e))?,
             );
         }
 
         if let Some(encryption) = &self.inner.server_side_encryption {
             headers.insert(
                 "x-oss-server-side-encryption",
-                HeaderValue::from_str(encryption)
-                    .map_err(|e| OSSError::InvalidHeaderValue(e))?,
+                HeaderValue::from_str(encryption).map_err(|e| OSSError::InvalidHeaderValue(e))?,
             );
         }
 
         if let Some(acl) = &self.inner.object_acl {
             headers.insert(
                 "x-oss-object-acl",
-                HeaderValue::from_str(acl)
-                    .map_err(|e| OSSError::InvalidHeaderValue(e))?,
+                HeaderValue::from_str(acl).map_err(|e| OSSError::InvalidHeaderValue(e))?,
             );
         }
 
@@ -254,8 +252,7 @@ impl AppendObjectFluentBuilder {
         if let Some(tagging) = &self.inner.tagging {
             headers.insert(
                 "x-oss-tagging",
-                HeaderValue::from_str(tagging)
-                    .map_err(|e| OSSError::InvalidHeaderValue(e))?,
+                HeaderValue::from_str(tagging).map_err(|e| OSSError::InvalidHeaderValue(e))?,
             );
         }
 
@@ -266,8 +263,7 @@ impl AppendObjectFluentBuilder {
                 headers.insert(
                     reqwest::header::HeaderName::from_bytes(key.as_bytes())
                         .map_err(|e| OSSError::InvalidHeaderName(e))?,
-                    HeaderValue::from_str(v)
-                        .map_err(|e| OSSError::InvalidHeaderValue(e))?,
+                    HeaderValue::from_str(v).map_err(|e| OSSError::InvalidHeaderValue(e))?,
                 );
             }
         }

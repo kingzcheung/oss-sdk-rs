@@ -69,7 +69,7 @@ impl DeleteMultipleObjectsFluentBuilder {
     }
 
     /// 设置是否开启简单响应模式
-    /// 
+    ///
     /// - `true`: OSS 不返回消息体
     /// - `false`: OSS 返回消息体中包含所有删除 Object 的结果（默认）
     pub fn quiet(mut self, quiet: bool) -> Self {
@@ -78,7 +78,7 @@ impl DeleteMultipleObjectsFluentBuilder {
     }
 
     /// 设置编码类型
-    /// 
+    ///
     /// 如果 Key 中包含 XML 1.0 标准不支持的控制字符，可指定 Encoding-type 为 url2
     pub fn encoding_type(mut self, encoding_type: impl Into<String>) -> Self {
         self.inner.encoding_type = Some(encoding_type.into());
@@ -94,16 +94,16 @@ impl DeleteMultipleObjectsFluentBuilder {
     /// # 错误
     ///
     /// 如果请求失败，返回 `OSSError`
-    /// 
+    ///
     /// # 限制
-    /// 
+    ///
     /// 单次请求最多允许删除 1000 个文件
     ///
     /// # 示例
     ///
     /// ```no_run
     /// use oss_sdk_rs::types::ObjectIdentifier;
-    /// 
+    ///
     /// # async fn example(client: oss_sdk_rs::Client) -> Result<(), oss_sdk_rs::errors::OSSError> {
     /// // 删除多个文件
     /// let output = client.delete_multiple_objects()
@@ -113,7 +113,7 @@ impl DeleteMultipleObjectsFluentBuilder {
     ///     .object("file3.txt")
     ///     .send()
     ///     .await?;
-    /// 
+    ///
     /// for deleted in &output.deleted {
     ///     println!("Deleted: {}", deleted.key);
     /// }
@@ -153,17 +153,12 @@ impl DeleteMultipleObjectsFluentBuilder {
 
         // 计算 Content-MD5
         let md5_hash = md5::compute(xml_body.as_bytes());
-        let content_md5 = base64::Engine::encode(
-            &base64::engine::general_purpose::STANDARD,
-            md5_hash.0,
-        );
+        let content_md5 =
+            base64::Engine::encode(&base64::engine::general_purpose::STANDARD, md5_hash.0);
 
         // 构建请求头（必须在签名之前添加）
         let mut headers = HeaderMap::new();
-        headers.insert(
-            "Content-Type",
-            HeaderValue::from_static("application/xml"),
-        );
+        headers.insert("Content-Type", HeaderValue::from_static("application/xml"));
         headers.insert(
             "Content-MD5",
             HeaderValue::from_str(&content_md5).map_err(|e| OSSError::InvalidHeaderValue(e))?,
@@ -194,10 +189,7 @@ impl DeleteMultipleObjectsFluentBuilder {
         )?;
 
         // 设置请求体并发送请求
-        let resp = req
-            .body(xml_body)
-            .send()
-            .await?;
+        let resp = req.body(xml_body).send().await?;
 
         let status = resp.status();
 
@@ -211,7 +203,7 @@ impl DeleteMultipleObjectsFluentBuilder {
         if status.is_success() {
             // 如果是 quiet 模式，响应体可能为空
             let text = resp.text().await?;
-            
+
             if text.is_empty() {
                 // Quiet 模式，返回空结果
                 return Ok(DeleteMultipleObjectsOutput {

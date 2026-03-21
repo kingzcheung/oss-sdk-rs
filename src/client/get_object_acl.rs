@@ -31,8 +31,8 @@
 //! }
 //! ```
 
-use std::sync::Arc;
 use std::str::FromStr;
+use std::sync::Arc;
 
 use reqwest::header::HeaderMap;
 
@@ -133,15 +133,13 @@ impl GetObjectAclFluentBuilder {
             let body = resp.text().await?;
 
             // 解析 XML 响应
-            let policy: AccessControlPolicy = AccessControlPolicy::parse(&body).map_err(|e| {
-                OSSError::XmlParse(format!("Failed to parse ACL response: {}", e))
-            })?;
+            let policy: AccessControlPolicy = AccessControlPolicy::parse(&body)
+                .map_err(|e| OSSError::XmlParse(format!("Failed to parse ACL response: {}", e)))?;
 
             // 解析 ACL 权限
             let grant_str = policy.access_control_list.grant.trim();
-            let grant = ObjectAclPermission::from_str(grant_str).map_err(|e| {
-                OSSError::XmlParse(format!("Failed to parse ACL grant: {}", e))
-            })?;
+            let grant = ObjectAclPermission::from_str(grant_str)
+                .map_err(|e| OSSError::XmlParse(format!("Failed to parse ACL grant: {}", e)))?;
 
             Ok(GetObjectAclOutput {
                 owner: policy.owner,

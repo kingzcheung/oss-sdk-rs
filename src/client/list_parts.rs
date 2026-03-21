@@ -75,9 +75,10 @@ impl ListPartsFluentBuilder {
     pub async fn send(self) -> Result<ListPartsOutput, OSSError> {
         let bucket = self.inner.bucket.ok_or(OSSError::BucketNotSet)?;
         let key = self.inner.key.ok_or(OSSError::KeyNotSet)?;
-        let upload_id = self.inner.upload_id.ok_or_else(|| {
-            OSSError::InvalidInput("upload_id is required".to_string())
-        })?;
+        let upload_id = self
+            .inner
+            .upload_id
+            .ok_or_else(|| OSSError::InvalidInput("upload_id is required".to_string()))?;
 
         // 构建查询参数
         let mut query_parts: Vec<String> = vec![format!("uploadId={}", upload_id)];
@@ -89,7 +90,10 @@ impl ListPartsFluentBuilder {
             query_parts.push(format!("part-number-marker={}", part_number_marker));
         }
         if let Some(ref encoding_type) = self.inner.encoding_type {
-            query_parts.push(format!("encoding-type={}", urlencoding::encode(encoding_type)));
+            query_parts.push(format!(
+                "encoding-type={}",
+                urlencoding::encode(encoding_type)
+            ));
         }
 
         let query = query_parts.join("&");

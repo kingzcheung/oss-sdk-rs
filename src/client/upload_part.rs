@@ -134,15 +134,18 @@ impl UploadPartFluentBuilder {
     pub async fn send(self) -> Result<UploadPartOutput, OSSError> {
         let bucket = self.inner.bucket.ok_or(OSSError::BucketNotSet)?;
         let key = self.inner.key.ok_or(OSSError::KeyNotSet)?;
-        let upload_id = self.inner.upload_id.ok_or_else(|| {
-            OSSError::InvalidInput("upload_id is required".to_string())
-        })?;
-        let part_number = self.inner.part_number.ok_or_else(|| {
-            OSSError::InvalidInput("part_number is required".to_string())
-        })?;
-        let body = self.inner.body.ok_or_else(|| {
-            OSSError::InvalidInput("body is required".to_string())
-        })?;
+        let upload_id = self
+            .inner
+            .upload_id
+            .ok_or_else(|| OSSError::InvalidInput("upload_id is required".to_string()))?;
+        let part_number = self
+            .inner
+            .part_number
+            .ok_or_else(|| OSSError::InvalidInput("part_number is required".to_string()))?;
+        let body = self
+            .inner
+            .body
+            .ok_or_else(|| OSSError::InvalidInput("body is required".to_string()))?;
 
         // 验证 part_number 范围
         if part_number < 1 || part_number > 10000 {
@@ -160,7 +163,10 @@ impl UploadPartFluentBuilder {
         let mut headers = HeaderMap::new();
         headers.insert(
             "Content-Length",
-            body.len().to_string().parse().map_err(|e| OSSError::InvalidHeaderValue(e))?,
+            body.len()
+                .to_string()
+                .parse()
+                .map_err(|e| OSSError::InvalidHeaderValue(e))?,
         );
 
         let req = self.handle.build_request(
@@ -227,7 +233,8 @@ mod tests {
 
         let client = super::super::Client::from_config(config).unwrap();
 
-        let builder = client.upload_part()
+        let builder = client
+            .upload_part()
             .bucket("my-bucket")
             .key("multipart.data")
             .upload_id("upload-id")
@@ -251,7 +258,8 @@ mod tests {
 
         let client = super::super::Client::from_config(config).unwrap();
 
-        let builder = client.upload_part()
+        let builder = client
+            .upload_part()
             .bucket("my-bucket")
             .key("multipart.data")
             .upload_id("upload-id")

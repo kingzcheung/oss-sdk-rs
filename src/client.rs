@@ -14,6 +14,7 @@ mod get_bucket_stat;
 mod get_object;
 mod get_object_acl;
 mod get_object_meta;
+mod get_symlink;
 mod head_object;
 mod initiate_multipart_upload;
 mod list_buckets;
@@ -23,6 +24,7 @@ mod list_parts;
 mod post_object;
 mod put_object;
 mod put_object_acl;
+mod put_symlink;
 mod restore_object;
 mod seal_append_object;
 mod upload_part;
@@ -54,6 +56,7 @@ pub use get_bucket_stat::GetBucketStatFluentBuilder;
 pub use get_object::GetObjectFluentBuilder;
 pub use get_object_acl::GetObjectAclFluentBuilder;
 pub use get_object_meta::GetObjectMetaFluentBuilder;
+pub use get_symlink::GetSymlinkFluentBuilder;
 pub use head_object::HeadObjectFluentBuilder;
 pub use initiate_multipart_upload::InitiateMultipartUploadFluentBuilder;
 pub use list_buckets::ListBucketsFluentBuilder;
@@ -63,6 +66,7 @@ pub use list_parts::ListPartsFluentBuilder;
 pub use post_object::PostObjectFluentBuilder;
 pub use put_object::PutObjectFluentBuilder;
 pub use put_object_acl::PutObjectAclFluentBuilder;
+pub use put_symlink::PutSymlinkFluentBuilder;
 pub use restore_object::RestoreObjectFluentBuilder;
 pub use seal_append_object::SealAppendObjectFluentBuilder;
 pub use upload_part::UploadPartFluentBuilder;
@@ -368,6 +372,18 @@ impl Client {
     /// 获取存储空间（Bucket）下某个文件（Object）的访问权限（ACL）
     pub fn get_object_acl(&self) -> GetObjectAclFluentBuilder {
         GetObjectAclFluentBuilder::new(self.handle.clone())
+    }
+
+    /// PutSymlink 操作
+    /// 为 OSS 的目标文件（TargetObject）创建软链接（Symlink）
+    pub fn put_symlink(&self) -> PutSymlinkFluentBuilder {
+        PutSymlinkFluentBuilder::new(self.handle.clone())
+    }
+
+    /// GetSymlink 操作
+    /// 获取软链接信息
+    pub fn get_symlink(&self) -> GetSymlinkFluentBuilder {
+        GetSymlinkFluentBuilder::new(self.handle.clone())
     }
 }
 

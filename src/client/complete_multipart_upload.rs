@@ -165,9 +165,10 @@ impl CompleteMultipartUploadFluentBuilder {
     pub async fn send(self) -> Result<CompleteMultipartUploadResponse, OSSError> {
         let bucket = self.inner.bucket.ok_or(OSSError::BucketNotSet)?;
         let key = self.inner.key.ok_or(OSSError::KeyNotSet)?;
-        let upload_id = self.inner.upload_id.ok_or_else(|| {
-            OSSError::InvalidInput("upload_id is required".to_string())
-        })?;
+        let upload_id = self
+            .inner
+            .upload_id
+            .ok_or_else(|| OSSError::InvalidInput("upload_id is required".to_string()))?;
 
         // 如果不是 complete_all，则需要至少一个 Part
         if !self.inner.complete_all && self.inner.parts.is_empty() {
@@ -191,7 +192,10 @@ impl CompleteMultipartUploadFluentBuilder {
         if let Some(forbid_overwrite) = self.inner.forbid_overwrite {
             headers.insert(
                 "x-oss-forbid-overwrite",
-                forbid_overwrite.to_string().parse().map_err(|e| OSSError::InvalidHeaderValue(e))?,
+                forbid_overwrite
+                    .to_string()
+                    .parse()
+                    .map_err(|e| OSSError::InvalidHeaderValue(e))?,
             );
         }
 
@@ -221,11 +225,16 @@ impl CompleteMultipartUploadFluentBuilder {
 
         headers.insert(
             "Content-Type",
-            "application/xml".parse().map_err(|e| OSSError::InvalidHeaderValue(e))?,
+            "application/xml"
+                .parse()
+                .map_err(|e| OSSError::InvalidHeaderValue(e))?,
         );
         headers.insert(
             "Content-Length",
-            body.len().to_string().parse().map_err(|e| OSSError::InvalidHeaderValue(e))?,
+            body.len()
+                .to_string()
+                .parse()
+                .map_err(|e| OSSError::InvalidHeaderValue(e))?,
         );
 
         let req = self.handle.build_request(
@@ -294,7 +303,8 @@ mod tests {
 
         let client = super::super::Client::from_config(config).unwrap();
 
-        let builder = client.complete_multipart_upload()
+        let builder = client
+            .complete_multipart_upload()
             .bucket("my-bucket")
             .key("large-file.zip")
             .upload_id("upload-id")
@@ -317,7 +327,8 @@ mod tests {
 
         let client = super::super::Client::from_config(config).unwrap();
 
-        let builder = client.complete_multipart_upload()
+        let builder = client
+            .complete_multipart_upload()
             .bucket("my-bucket")
             .key("large-file.zip")
             .upload_id("upload-id")
@@ -341,7 +352,8 @@ mod tests {
 
         let client = super::super::Client::from_config(config).unwrap();
 
-        let builder = client.complete_multipart_upload()
+        let builder = client
+            .complete_multipart_upload()
             .bucket("my-bucket")
             .key("large-file.zip")
             .upload_id("upload-id")

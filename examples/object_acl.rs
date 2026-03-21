@@ -119,7 +119,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // 清理测试文件
     println!("\n=== 清理测试文件 ===");
-    client.delete_object().bucket(&bucket).key(key).send().await?;
+    client
+        .delete_object()
+        .bucket(&bucket)
+        .key(key)
+        .send()
+        .await?;
     println!("测试文件已删除");
 
     println!("\n=== 示例完成 ===");

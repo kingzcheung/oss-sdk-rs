@@ -162,10 +162,7 @@ pub fn to_restore_xml(days: u32, tier: Option<Tier>) -> String {
             r#"<RestoreRequest><Days>{}</Days><JobParameters><Tier>{}</Tier></JobParameters></RestoreRequest>"#,
             days, t
         ),
-        None => format!(
-            r#"<RestoreRequest><Days>{}</Days></RestoreRequest>"#,
-            days
-        ),
+        None => format!(r#"<RestoreRequest><Days>{}</Days></RestoreRequest>"#, days),
     }
 }
 

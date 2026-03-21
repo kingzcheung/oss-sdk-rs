@@ -54,9 +54,10 @@ impl AbortMultipartUploadFluentBuilder {
     pub async fn send(self) -> Result<AbortMultipartUploadOutput, OSSError> {
         let bucket = self.inner.bucket.ok_or(OSSError::BucketNotSet)?;
         let key = self.inner.key.ok_or(OSSError::KeyNotSet)?;
-        let upload_id = self.inner.upload_id.ok_or_else(|| {
-            OSSError::InvalidInput("upload_id is required".to_string())
-        })?;
+        let upload_id = self
+            .inner
+            .upload_id
+            .ok_or_else(|| OSSError::InvalidInput("upload_id is required".to_string()))?;
 
         let uri = format!("/{}?uploadId={}", key, upload_id);
         let headers = HeaderMap::new();

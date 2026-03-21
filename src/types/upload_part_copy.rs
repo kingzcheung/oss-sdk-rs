@@ -209,7 +209,10 @@ mod tests {
             .build()
             .unwrap();
 
-        assert_eq!(input.copy_source_range, Some("bytes=100-6291756".to_string()));
+        assert_eq!(
+            input.copy_source_range,
+            Some("bytes=100-6291756".to_string())
+        );
     }
 
     #[test]

@@ -1,12 +1,11 @@
-//! PutObjectACL 操作实现
+//! GetSymlink 操作实现
 //!
-//! 修改文件（Object）的访问权限（ACL）
+//! 获取软链接信息
 //!
 //! # 示例
 //!
 //! ```no_run
 //! use oss_sdk_rs::{Client, Config, Credentials};
-//! use oss_sdk_rs::types::ObjectAclPermission;
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -18,15 +17,15 @@
 //!         .build()?;
 //!     let client = Client::from_config(config)?;
 //!
-//!     // 设置 Object ACL 为公共读
-//!     let output = client.put_object_acl()
+//!     // 获取软链接
+//!     let output = client.get_symlink()
 //!         .bucket("my-bucket")
-//!         .key("my-object.txt")
-//!         .acl(ObjectAclPermission::PublicRead)
+//!         .key("link-to-file.txt")
 //!         .send()
 //!         .await?;
 //!
-//!     println!("Request ID: {:?}", output.request_id);
+//!     println!("Target: {:?}", output.target);
+//!     println!("ETag: {:?}", output.etag);
 //!
 //!     Ok(())
 //! }
@@ -34,28 +33,27 @@
 
 use std::sync::Arc;
 
-use reqwest::header::{HeaderMap, HeaderValue};
+use reqwest::header::HeaderMap;
 
 use crate::client::{Handle, HttpMethod};
 use crate::errors::OSSError;
-use crate::types::{ObjectAclPermission, PutObjectAclOutput};
+use crate::types::GetSymlinkOutput;
 
-/// PutObjectACL Fluent Builder
+/// GetSymlink Fluent Builder
 #[derive(Debug)]
-pub struct PutObjectAclFluentBuilder {
+pub struct GetSymlinkFluentBuilder {
     handle: Arc<Handle>,
-    inner: PutObjectAclInputBuilder,
+    inner: GetSymlinkInputBuilder,
 }
 
 #[derive(Debug, Default)]
-struct PutObjectAclInputBuilder {
+struct GetSymlinkInputBuilder {
     bucket: Option<String>,
     key: Option<String>,
-    acl: Option<ObjectAclPermission>,
     version_id: Option<String>,
 }
 
-impl PutObjectAclFluentBuilder {
+impl GetSymlinkFluentBuilder {
     pub(crate) fn new(handle: Arc<Handle>) -> Self {
         Self {
             handle,
@@ -69,26 +67,14 @@ impl PutObjectAclFluentBuilder {
         self
     }
 
-    /// 设置对象键
+    /// 设置软链接名称
     pub fn key(mut self, key: impl Into<String>) -> Self {
         self.inner.key = Some(key.into());
         self
     }
 
-    /// 设置对象 ACL 权限
-    ///
-    /// 可选值：
-    /// - `ObjectAclPermission::Private` - 私有读写
-    /// - `ObjectAclPermission::PublicRead` - 公共读
-    /// - `ObjectAclPermission::PublicReadWrite` - 公共读写
-    /// - `ObjectAclPermission::Default` - 继承 Bucket ACL
-    pub fn acl(mut self, acl: ObjectAclPermission) -> Self {
-        self.inner.acl = Some(acl);
-        self
-    }
-
     /// 设置版本 ID
-    /// 在开启版本控制的 Bucket 中，指定此参数可以设置指定版本 Object 的 ACL
+    /// 在开启版本控制的 Bucket 中，指定此参数可以获取指定版本的软链接
     pub fn version_id(mut self, version_id: impl Into<String>) -> Self {
         self.inner.version_id = Some(version_id.into());
         self
@@ -98,35 +84,28 @@ impl PutObjectAclFluentBuilder {
     ///
     /// # 返回
     ///
-    /// 返回 `PutObjectAclOutput`，包含请求 ID 和版本 ID（如果有）
+    /// 返回 `GetSymlinkOutput`，包含软链接指向的目标文件等信息
     ///
     /// # 错误
     ///
-    /// - 如果 Bucket 或 Key 未设置，返回 `OSSError::BucketNotSet` 或 `OSSError::KeyNotSet`
-    /// - 如果 ACL 未设置，返回 `OSSError::InvalidInput`
-    /// - 如果 Object 不存在，返回 404 错误
+    /// - 如果 Bucket 或 Key 未设置，返回相应错误
+    /// - 如果软链接不存在，返回 404 错误
     /// - 如果没有权限，返回 403 错误
-    pub async fn send(self) -> Result<PutObjectAclOutput, OSSError> {
+    pub async fn send(self) -> Result<GetSymlinkOutput, OSSError> {
         let bucket = self.inner.bucket.ok_or(OSSError::BucketNotSet)?;
         let key = self.inner.key.ok_or(OSSError::KeyNotSet)?;
-        let acl = self.inner.acl.ok_or_else(|| {
-            OSSError::InvalidInput("acl is required, please call .acl() to set it".to_string())
-        })?;
 
         // 构建查询参数
-        let mut query = String::from("acl");
+        let mut query = String::from("symlink");
         if let Some(ref version_id) = self.inner.version_id {
             query.push_str("&versionId=");
             query.push_str(version_id);
         }
 
-        // 构建请求头
-        let mut headers = HeaderMap::new();
-        headers.insert("x-oss-object-acl", HeaderValue::from_static(acl.as_str()));
-
+        let headers = HeaderMap::new();
         let uri = format!("/{}", key);
         let req = self.handle.build_request(
-            HttpMethod::Put,
+            HttpMethod::Get,
             &uri,
             Some(&bucket),
             Some(&key),
@@ -144,15 +123,44 @@ impl PutObjectAclFluentBuilder {
                 .and_then(|v| v.to_str().ok())
                 .map(|s| s.to_string());
 
+            let target = resp
+                .headers()
+                .get("x-oss-symlink-target")
+                .and_then(|v| v.to_str().ok())
+                .map(|s| s.to_string());
+
+            let etag = resp
+                .headers()
+                .get("ETag")
+                .and_then(|v| v.to_str().ok())
+                .map(|s| s.to_string());
+
             let version_id = resp
                 .headers()
                 .get("x-oss-version-id")
                 .and_then(|v| v.to_str().ok())
                 .map(|s| s.to_string());
 
-            Ok(PutObjectAclOutput {
+            let last_modified = resp
+                .headers()
+                .get("Last-Modified")
+                .and_then(|v| v.to_str().ok())
+                .map(|s| s.to_string());
+
+            let delete_marker = resp
+                .headers()
+                .get("x-oss-delete-marker")
+                .and_then(|v| v.to_str().ok())
+                .map(|s| s == "true")
+                .unwrap_or(false);
+
+            Ok(GetSymlinkOutput {
+                target,
                 request_id,
+                etag,
                 version_id,
+                last_modified,
+                delete_marker,
             })
         } else {
             let text = resp.text().await?;

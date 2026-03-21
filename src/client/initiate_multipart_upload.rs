@@ -124,7 +124,10 @@ impl InitiateMultipartUploadFluentBuilder {
     }
 
     /// 设置服务端加密方式
-    pub fn server_side_encryption(mut self, encryption: crate::types::ServerSideEncryption) -> Self {
+    pub fn server_side_encryption(
+        mut self,
+        encryption: crate::types::ServerSideEncryption,
+    ) -> Self {
         self.inner.server_side_encryption = Some(encryption.to_string());
         self
     }
@@ -213,31 +216,41 @@ impl InitiateMultipartUploadFluentBuilder {
         if let Some(ref cache_control) = self.inner.cache_control {
             headers.insert(
                 "Cache-Control",
-                cache_control.parse().map_err(|e| OSSError::InvalidHeaderValue(e))?,
+                cache_control
+                    .parse()
+                    .map_err(|e| OSSError::InvalidHeaderValue(e))?,
             );
         }
         if let Some(ref content_disposition) = self.inner.content_disposition {
             headers.insert(
                 "Content-Disposition",
-                content_disposition.parse().map_err(|e| OSSError::InvalidHeaderValue(e))?,
+                content_disposition
+                    .parse()
+                    .map_err(|e| OSSError::InvalidHeaderValue(e))?,
             );
         }
         if let Some(ref content_encoding) = self.inner.content_encoding {
             headers.insert(
                 "Content-Encoding",
-                content_encoding.parse().map_err(|e| OSSError::InvalidHeaderValue(e))?,
+                content_encoding
+                    .parse()
+                    .map_err(|e| OSSError::InvalidHeaderValue(e))?,
             );
         }
         if let Some(ref content_type) = self.inner.content_type {
             headers.insert(
                 "Content-Type",
-                content_type.parse().map_err(|e| OSSError::InvalidHeaderValue(e))?,
+                content_type
+                    .parse()
+                    .map_err(|e| OSSError::InvalidHeaderValue(e))?,
             );
         }
         if let Some(ref expires) = self.inner.expires {
             headers.insert(
                 "Expires",
-                expires.parse().map_err(|e| OSSError::InvalidHeaderValue(e))?,
+                expires
+                    .parse()
+                    .map_err(|e| OSSError::InvalidHeaderValue(e))?,
             );
         }
 
@@ -245,37 +258,51 @@ impl InitiateMultipartUploadFluentBuilder {
         if let Some(forbid_overwrite) = self.inner.forbid_overwrite {
             headers.insert(
                 "x-oss-forbid-overwrite",
-                forbid_overwrite.to_string().parse().map_err(|e| OSSError::InvalidHeaderValue(e))?,
+                forbid_overwrite
+                    .to_string()
+                    .parse()
+                    .map_err(|e| OSSError::InvalidHeaderValue(e))?,
             );
         }
         if let Some(ref encryption) = self.inner.server_side_encryption {
             headers.insert(
                 "x-oss-server-side-encryption",
-                encryption.parse().map_err(|e| OSSError::InvalidHeaderValue(e))?,
+                encryption
+                    .parse()
+                    .map_err(|e| OSSError::InvalidHeaderValue(e))?,
             );
         }
         if let Some(ref data_encryption) = self.inner.server_side_data_encryption {
             headers.insert(
                 "x-oss-server-side-data-encryption",
-                data_encryption.parse().map_err(|e| OSSError::InvalidHeaderValue(e))?,
+                data_encryption
+                    .parse()
+                    .map_err(|e| OSSError::InvalidHeaderValue(e))?,
             );
         }
         if let Some(ref key_id) = self.inner.server_side_encryption_key_id {
             headers.insert(
                 "x-oss-server-side-encryption-key-id",
-                key_id.parse().map_err(|e| OSSError::InvalidHeaderValue(e))?,
+                key_id
+                    .parse()
+                    .map_err(|e| OSSError::InvalidHeaderValue(e))?,
             );
         }
         if let Some(ref storage_class) = self.inner.storage_class {
             headers.insert(
                 "x-oss-storage-class",
-                storage_class.to_string().parse().map_err(|e| OSSError::InvalidHeaderValue(e))?,
+                storage_class
+                    .to_string()
+                    .parse()
+                    .map_err(|e| OSSError::InvalidHeaderValue(e))?,
             );
         }
         if let Some(ref tagging) = self.inner.tagging {
             headers.insert(
                 "x-oss-tagging",
-                tagging.parse().map_err(|e| OSSError::InvalidHeaderValue(e))?,
+                tagging
+                    .parse()
+                    .map_err(|e| OSSError::InvalidHeaderValue(e))?,
             );
         }
 
@@ -312,8 +339,8 @@ impl InitiateMultipartUploadFluentBuilder {
         }
 
         let body = resp.text().await?;
-        let output: InitiateMultipartUploadOutput = quick_xml::de::from_str(&body)
-            .map_err(|e| OSSError::XmlParse(e.to_string()))?;
+        let output: InitiateMultipartUploadOutput =
+            quick_xml::de::from_str(&body).map_err(|e| OSSError::XmlParse(e.to_string()))?;
 
         Ok(output)
     }
@@ -333,7 +360,8 @@ mod tests {
 
         let client = super::super::Client::from_config(config).unwrap();
 
-        let builder = client.initiate_multipart_upload()
+        let builder = client
+            .initiate_multipart_upload()
             .bucket("my-bucket")
             .key("multipart.data");
 
@@ -351,7 +379,8 @@ mod tests {
 
         let client = super::super::Client::from_config(config).unwrap();
 
-        let builder = client.initiate_multipart_upload()
+        let builder = client
+            .initiate_multipart_upload()
             .bucket("my-bucket")
             .key("multipart.data")
             .storage_class(StorageClass::Archive)
@@ -362,7 +391,10 @@ mod tests {
         assert_eq!(builder.inner.bucket, Some("my-bucket".to_string()));
         assert_eq!(builder.inner.key, Some("multipart.data".to_string()));
         assert_eq!(builder.inner.storage_class, Some(StorageClass::Archive));
-        assert_eq!(builder.inner.content_type, Some("application/octet-stream".to_string()));
+        assert_eq!(
+            builder.inner.content_type,
+            Some("application/octet-stream".to_string())
+        );
         assert_eq!(builder.inner.forbid_overwrite, Some(true));
         assert_eq!(builder.inner.tagging, Some("TagA=A&TagB=B".to_string()));
     }
@@ -377,13 +409,20 @@ mod tests {
 
         let client = super::super::Client::from_config(config).unwrap();
 
-        let builder = client.initiate_multipart_upload()
+        let builder = client
+            .initiate_multipart_upload()
             .bucket("my-bucket")
             .key("multipart.data")
             .metadata("x-oss-meta-author", "test")
             .metadata("x-oss-meta-version", "1.0");
 
-        assert_eq!(builder.inner.metadata.get("x-oss-meta-author"), Some(&"test".to_string()));
-        assert_eq!(builder.inner.metadata.get("x-oss-meta-version"), Some(&"1.0".to_string()));
+        assert_eq!(
+            builder.inner.metadata.get("x-oss-meta-author"),
+            Some(&"test".to_string())
+        );
+        assert_eq!(
+            builder.inner.metadata.get("x-oss-meta-version"),
+            Some(&"1.0".to_string())
+        );
     }
 }

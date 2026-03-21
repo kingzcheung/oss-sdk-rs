@@ -1,5 +1,5 @@
 //! DeleteMultipleObjects API 集成测试
-//! 
+//!
 //! 运行测试前请确保：
 //! 1. 复制 .env.example 为 .env
 //! 2. 在 .env 中填入实际的阿里云 OSS 配置信息
@@ -15,7 +15,7 @@ async fn test_delete_multiple_objects_verbose() -> Result<(), OSSError> {
     dotenvy::dotenv().ok();
     let oss = create_oss_client();
     let bucket = std::env::var("OSS_BUCKET").expect("OSS_BUCKET must be set in .env");
-    
+
     // 1. 先上传一些测试文件
     println!("1. Uploading test files...");
     let test_files: Vec<&str> = vec![
@@ -23,7 +23,7 @@ async fn test_delete_multiple_objects_verbose() -> Result<(), OSSError> {
         "test/delete_multi_2.txt",
         "test/delete_multi_3.txt",
     ];
-    
+
     for key in &test_files {
         let content = format!("Content of {}", key);
         oss.put_object()
@@ -37,12 +37,13 @@ async fn test_delete_multiple_objects_verbose() -> Result<(), OSSError> {
 
     // 2. 批量删除文件（详细模式）
     println!("\n2. Deleting multiple objects (verbose mode)...");
-    let output = oss.delete_multiple_objects()
+    let output = oss
+        .delete_multiple_objects()
         .bucket(&bucket)
         .object("test/delete_multi_1.txt")
         .object("test/delete_multi_2.txt")
         .object("test/delete_multi_3.txt")
-        .quiet(false)  // 详细模式
+        .quiet(false) // 详细模式
         .send()
         .await?;
 
@@ -59,11 +60,7 @@ async fn test_delete_multiple_objects_verbose() -> Result<(), OSSError> {
     // 3. 验证文件确实被删除
     println!("\n3. Verifying objects are deleted...");
     for key in &test_files {
-        let result = oss.head_object()
-            .bucket(&bucket)
-            .key(*key)
-            .send()
-            .await;
+        let result = oss.head_object().bucket(&bucket).key(*key).send().await;
         assert!(result.is_err(), "Object {} should be deleted", key);
         println!("   {} is deleted", key);
     }
@@ -77,14 +74,11 @@ async fn test_delete_multiple_objects_quiet() -> Result<(), OSSError> {
     dotenvy::dotenv().ok();
     let oss = create_oss_client();
     let bucket = std::env::var("OSS_BUCKET").expect("OSS_BUCKET must be set in .env");
-    
+
     // 1. 先上传一些测试文件
     println!("1. Uploading test files...");
-    let test_files: Vec<&str> = vec![
-        "test/delete_quiet_1.txt",
-        "test/delete_quiet_2.txt",
-    ];
-    
+    let test_files: Vec<&str> = vec!["test/delete_quiet_1.txt", "test/delete_quiet_2.txt"];
+
     for key in &test_files {
         let content = format!("Content of {}", key);
         oss.put_object()
@@ -98,29 +92,32 @@ async fn test_delete_multiple_objects_quiet() -> Result<(), OSSError> {
 
     // 2. 批量删除文件（简单模式）
     println!("\n2. Deleting multiple objects (quiet mode)...");
-    let output = oss.delete_multiple_objects()
+    let output = oss
+        .delete_multiple_objects()
         .bucket(&bucket)
         .object("test/delete_quiet_1.txt")
         .object("test/delete_quiet_2.txt")
-        .quiet(true)  // 简单模式
+        .quiet(true) // 简单模式
         .send()
         .await?;
 
     println!("   Delete result:");
     println!("     Request ID: {:?}", output.request_id);
-    println!("     Deleted {} objects (quiet mode returns empty list)", output.deleted.len());
+    println!(
+        "     Deleted {} objects (quiet mode returns empty list)",
+        output.deleted.len()
+    );
 
     // 简单模式下，响应体为空，deleted 列表应该为空
-    assert!(output.deleted.is_empty(), "Quiet mode should return empty deleted list");
+    assert!(
+        output.deleted.is_empty(),
+        "Quiet mode should return empty deleted list"
+    );
 
     // 3. 验证文件确实被删除
     println!("\n3. Verifying objects are deleted...");
     for key in &test_files {
-        let result = oss.head_object()
-            .bucket(&bucket)
-            .key(*key)
-            .send()
-            .await;
+        let result = oss.head_object().bucket(&bucket).key(*key).send().await;
         assert!(result.is_err(), "Object {} should be deleted", key);
         println!("   {} is deleted", key);
     }
@@ -134,10 +131,11 @@ async fn test_delete_multiple_objects_nonexistent() -> Result<(), OSSError> {
     dotenvy::dotenv().ok();
     let oss = create_oss_client();
     let bucket = std::env::var("OSS_BUCKET").expect("OSS_BUCKET must be set in .env");
-    
+
     // 删除不存在的文件（OSS 不会报错，会返回成功）
     println!("Deleting non-existent objects...");
-    let output = oss.delete_multiple_objects()
+    let output = oss
+        .delete_multiple_objects()
         .bucket(&bucket)
         .object("test/nonexistent_1.txt")
         .object("test/nonexistent_2.txt")
@@ -161,9 +159,10 @@ async fn test_delete_multiple_objects_empty_list() -> Result<(), OSSError> {
     dotenvy::dotenv().ok();
     let oss = create_oss_client();
     let bucket = std::env::var("OSS_BUCKET").expect("OSS_BUCKET must be set in .env");
-    
+
     // 尝试删除空列表
-    let result = oss.delete_multiple_objects()
+    let result = oss
+        .delete_multiple_objects()
         .bucket(&bucket)
         // 不添加任何对象
         .send()
@@ -182,16 +181,16 @@ async fn test_delete_multiple_objects_with_object_identifiers() -> Result<(), OS
     dotenvy::dotenv().ok();
     let oss = create_oss_client();
     let bucket = std::env::var("OSS_BUCKET").expect("OSS_BUCKET must be set in .env");
-    
+
     // 1. 先上传一些测试文件
     println!("1. Uploading test files...");
     use oss_sdk_rs::types::ObjectIdentifier;
-    
+
     let test_files = vec![
         ObjectIdentifier::new("test/delete_objid_1.txt"),
         ObjectIdentifier::new("test/delete_objid_2.txt"),
     ];
-    
+
     for obj in &test_files {
         let content = format!("Content of {}", obj.key);
         oss.put_object()
@@ -205,7 +204,8 @@ async fn test_delete_multiple_objects_with_object_identifiers() -> Result<(), OS
 
     // 2. 使用 objects 方法批量删除
     println!("\n2. Deleting using objects() method...");
-    let output = oss.delete_multiple_objects()
+    let output = oss
+        .delete_multiple_objects()
         .bucket(&bucket)
         .objects(test_files.clone())
         .quiet(false)

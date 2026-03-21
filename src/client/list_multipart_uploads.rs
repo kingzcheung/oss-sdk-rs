@@ -98,10 +98,16 @@ impl ListMultipartUploadsFluentBuilder {
             query_parts.push(format!("prefix={}", urlencoding::encode(prefix)));
         }
         if let Some(ref upload_id_marker) = self.inner.upload_id_marker {
-            query_parts.push(format!("upload-id-marker={}", urlencoding::encode(upload_id_marker)));
+            query_parts.push(format!(
+                "upload-id-marker={}",
+                urlencoding::encode(upload_id_marker)
+            ));
         }
         if let Some(ref encoding_type) = self.inner.encoding_type {
-            query_parts.push(format!("encoding-type={}", urlencoding::encode(encoding_type)));
+            query_parts.push(format!(
+                "encoding-type={}",
+                urlencoding::encode(encoding_type)
+            ));
         }
 
         let query = query_parts.join("&");

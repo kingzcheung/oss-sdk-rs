@@ -2,14 +2,17 @@
 
 mod common;
 
-use oss_sdk_rs::{ObjectAclPermission, PutObjectAclInput, GetObjectAclInput};
+use oss_sdk_rs::{GetObjectAclInput, ObjectAclPermission, PutObjectAclInput};
 
 #[test]
 fn test_object_acl_permission() {
     // 测试 ObjectAclPermission 枚举
     assert_eq!(ObjectAclPermission::Private.as_str(), "private");
     assert_eq!(ObjectAclPermission::PublicRead.as_str(), "public-read");
-    assert_eq!(ObjectAclPermission::PublicReadWrite.as_str(), "public-read-write");
+    assert_eq!(
+        ObjectAclPermission::PublicReadWrite.as_str(),
+        "public-read-write"
+    );
     assert_eq!(ObjectAclPermission::Default.as_str(), "default");
 }
 
@@ -39,7 +42,10 @@ fn test_object_acl_permission_from_str() {
 #[test]
 fn test_object_acl_display() {
     assert_eq!(format!("{}", ObjectAclPermission::Private), "private");
-    assert_eq!(format!("{}", ObjectAclPermission::PublicRead), "public-read");
+    assert_eq!(
+        format!("{}", ObjectAclPermission::PublicRead),
+        "public-read"
+    );
     assert_eq!(
         format!("{}", ObjectAclPermission::PublicReadWrite),
         "public-read-write"
