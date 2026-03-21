@@ -1,7 +1,9 @@
 //! OSS 客户端模块
 //! 提供 AWS SDK 风格的客户端实现
 
+mod abort_multipart_upload;
 mod append_object;
+mod complete_multipart_upload;
 mod copy_object;
 mod delete_multiple_objects;
 mod delete_object;
@@ -12,12 +14,17 @@ mod get_bucket_stat;
 mod get_object;
 mod get_object_meta;
 mod head_object;
+mod initiate_multipart_upload;
 mod list_buckets;
+mod list_multipart_uploads;
 mod list_objects;
+mod list_parts;
 mod post_object;
 mod put_object;
 mod restore_object;
 mod seal_append_object;
+mod upload_part;
+mod upload_part_copy;
 
 use std::sync::Arc;
 use std::time::Duration;
@@ -32,7 +39,9 @@ use crate::config::Config;
 use crate::credentials::Credentials;
 use crate::errors::OSSError;
 
+pub use abort_multipart_upload::AbortMultipartUploadFluentBuilder;
 pub use append_object::AppendObjectFluentBuilder;
+pub use complete_multipart_upload::CompleteMultipartUploadFluentBuilder;
 pub use copy_object::CopyObjectFluentBuilder;
 pub use delete_multiple_objects::DeleteMultipleObjectsFluentBuilder;
 pub use delete_object::DeleteObjectFluentBuilder;
@@ -43,12 +52,17 @@ pub use get_bucket_stat::GetBucketStatFluentBuilder;
 pub use get_object::GetObjectFluentBuilder;
 pub use get_object_meta::GetObjectMetaFluentBuilder;
 pub use head_object::HeadObjectFluentBuilder;
+pub use initiate_multipart_upload::InitiateMultipartUploadFluentBuilder;
 pub use list_buckets::ListBucketsFluentBuilder;
+pub use list_multipart_uploads::ListMultipartUploadsFluentBuilder;
 pub use list_objects::ListObjectsFluentBuilder;
+pub use list_parts::ListPartsFluentBuilder;
 pub use post_object::PostObjectFluentBuilder;
 pub use put_object::PutObjectFluentBuilder;
 pub use restore_object::RestoreObjectFluentBuilder;
 pub use seal_append_object::SealAppendObjectFluentBuilder;
+pub use upload_part::UploadPartFluentBuilder;
+pub use upload_part_copy::UploadPartCopyFluentBuilder;
 
 /// HTTP 请求方法
 #[derive(Debug, Clone, Copy)]
@@ -296,6 +310,48 @@ impl Client {
     /// 解冻归档、冷归档、深度冷归档类型的 Object
     pub fn restore_object(&self) -> RestoreObjectFluentBuilder {
         RestoreObjectFluentBuilder::new(self.handle.clone())
+    }
+
+    /// InitiateMultipartUpload 操作
+    /// 初始化分片上传任务，获取 UploadId
+    pub fn initiate_multipart_upload(&self) -> InitiateMultipartUploadFluentBuilder {
+        InitiateMultipartUploadFluentBuilder::new(self.handle.clone())
+    }
+
+    /// UploadPart 操作
+    /// 根据指定的 Object 名和 uploadId 来分片上传数据
+    pub fn upload_part(&self) -> UploadPartFluentBuilder {
+        UploadPartFluentBuilder::new(self.handle.clone())
+    }
+
+    /// UploadPartCopy 操作
+    /// 从一个已存在的 Object 中拷贝数据来上传一个 Part
+    pub fn upload_part_copy(&self) -> UploadPartCopyFluentBuilder {
+        UploadPartCopyFluentBuilder::new(self.handle.clone())
+    }
+
+    /// CompleteMultipartUpload 操作
+    /// 完成分片上传，将所有已上传的 Part 合并成一个完整的 Object
+    pub fn complete_multipart_upload(&self) -> CompleteMultipartUploadFluentBuilder {
+        CompleteMultipartUploadFluentBuilder::new(self.handle.clone())
+    }
+
+    /// AbortMultipartUpload 操作
+    /// 取消 MultipartUpload 事件并删除对应的 Part 数据
+    pub fn abort_multipart_upload(&self) -> AbortMultipartUploadFluentBuilder {
+        AbortMultipartUploadFluentBuilder::new(self.handle.clone())
+    }
+
+    /// ListMultipartUploads 操作
+    /// 列举所有执行中的 Multipart Upload 事件
+    pub fn list_multipart_uploads(&self) -> ListMultipartUploadsFluentBuilder {
+        ListMultipartUploadsFluentBuilder::new(self.handle.clone())
+    }
+
+    /// ListParts 操作
+    /// 列举指定 Upload ID 所属的所有已经上传成功 Part
+    pub fn list_parts(&self) -> ListPartsFluentBuilder {
+        ListPartsFluentBuilder::new(self.handle.clone())
     }
 }
 
