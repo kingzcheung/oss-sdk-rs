@@ -19,12 +19,14 @@ pub use errors::OSSError;
 // 重导出 types
 pub use types::{
     AccessControlListInfo, AppendObjectInput, AppendObjectOutput, BucketInfo, BucketInfoDetail,
-    BucketPolicyInfo, CommonPrefix, CopyObjectInput, CopyObjectOutput, DeleteObjectInput,
-    DeleteObjectOutput, DescribeRegionsInput, DescribeRegionsOutput, GetBucketInfoInput,
-    GetBucketInfoOutput, GetBucketLocationInput, GetBucketLocationOutput, GetBucketStatInput,
-    GetBucketStatOutput, GetObjectInput, GetObjectOutput, HeadObjectInput, HeadObjectOutput,
-    ListBucketsInput, ListBucketsOutput, ListObjectsInput, ListObjectsOutput, Object, OwnerInfo,
-    PutObjectInput, PutObjectOutput, RegionInfo, ServerSideEncryptionRule,
+    BucketPolicyInfo, CommonPrefix, CopyObjectInput, CopyObjectOutput, DeleteMultipleObjectsInput,
+    DeleteMultipleObjectsOutput, DeleteObjectInput, DeleteObjectOutput, DeletedObject,
+    DescribeRegionsInput, DescribeRegionsOutput, GetBucketInfoInput, GetBucketInfoOutput,
+    GetBucketLocationInput, GetBucketLocationOutput, GetBucketStatInput, GetBucketStatOutput,
+    GetObjectInput, GetObjectOutput, HeadObjectInput, HeadObjectOutput, ListBucketsInput,
+    ListBucketsOutput, ListObjectsInput, ListObjectsOutput, Object, ObjectIdentifier, OwnerInfo,
+    PutObjectInput, PutObjectOutput, RegionInfo, SealAppendObjectInput, SealAppendObjectOutput,
+    ServerSideEncryptionRule,
 };
 
 // 重导出 primitives

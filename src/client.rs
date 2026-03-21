@@ -3,6 +3,7 @@
 
 mod append_object;
 mod copy_object;
+mod delete_multiple_objects;
 mod delete_object;
 mod describe_regions;
 mod get_bucket_info;
@@ -13,6 +14,7 @@ mod head_object;
 mod list_buckets;
 mod list_objects;
 mod put_object;
+mod seal_append_object;
 
 use std::sync::Arc;
 use std::time::Duration;
@@ -29,6 +31,7 @@ use crate::errors::OSSError;
 
 pub use append_object::AppendObjectFluentBuilder;
 pub use copy_object::CopyObjectFluentBuilder;
+pub use delete_multiple_objects::DeleteMultipleObjectsFluentBuilder;
 pub use delete_object::DeleteObjectFluentBuilder;
 pub use describe_regions::DescribeRegionsFluentBuilder;
 pub use get_bucket_info::GetBucketInfoFluentBuilder;
@@ -39,6 +42,7 @@ pub use head_object::HeadObjectFluentBuilder;
 pub use list_buckets::ListBucketsFluentBuilder;
 pub use list_objects::ListObjectsFluentBuilder;
 pub use put_object::PutObjectFluentBuilder;
+pub use seal_append_object::SealAppendObjectFluentBuilder;
 
 /// HTTP 请求方法
 #[derive(Debug, Clone, Copy)]
@@ -217,6 +221,13 @@ impl Client {
         DeleteObjectFluentBuilder::new(self.handle.clone())
     }
 
+    /// DeleteMultipleObjects 操作
+    /// 删除同一个存储空间（Bucket）中的多个文件（Object）
+    /// 单次请求最多允许删除 1000 个文件
+    pub fn delete_multiple_objects(&self) -> DeleteMultipleObjectsFluentBuilder {
+        DeleteMultipleObjectsFluentBuilder::new(self.handle.clone())
+    }
+
     /// HeadObject 操作
     pub fn head_object(&self) -> HeadObjectFluentBuilder {
         HeadObjectFluentBuilder::new(self.handle.clone())
@@ -255,6 +266,12 @@ impl Client {
     /// 以追加写的方式上传文件
     pub fn append_object(&self) -> AppendObjectFluentBuilder {
         AppendObjectFluentBuilder::new(self.handle.clone())
+    }
+
+    /// SealAppendObject 操作
+    /// 停止对某个 Appendable Object 继续追加内容，并将其转为非追加状态
+    pub fn seal_append_object(&self) -> SealAppendObjectFluentBuilder {
+        SealAppendObjectFluentBuilder::new(self.handle.clone())
     }
 }
 

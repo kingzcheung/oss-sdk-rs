@@ -71,6 +71,8 @@ pub enum OSSError {
     Credentials(String),
     #[error("config error: {0}")]
     Config(String),
+    #[error("invalid input: {0}")]
+    InvalidInput(String),
 }
 
 #[derive(Serialize, Deserialize)]

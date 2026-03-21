@@ -395,8 +395,6 @@ impl<'a> SignerV4<'a> {
 
 #[cfg(test)]
 mod test {
-    use reqwest::Method;
-
     use super::*;
 
     #[test]

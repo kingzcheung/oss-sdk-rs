@@ -1,7 +1,5 @@
 //! AppendObject 操作 Input/Output 类型定义
 
-use serde::{Deserialize, Serialize};
-
 /// AppendObject 操作输入
 #[derive(Debug, Clone, Default)]
 pub struct AppendObjectInput {
