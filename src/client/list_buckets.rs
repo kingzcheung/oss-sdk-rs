@@ -90,8 +90,8 @@ impl ListBucketsFluentBuilder {
         let req = self.handle.build_request(
             HttpMethod::Get,
             "/",
-            None,  // 不指定 bucket
-            None,  // 不指定 object key
+            None, // 不指定 bucket
+            None, // 不指定 object key
             headers,
             query.as_deref(),
         )?;
@@ -101,8 +101,8 @@ impl ListBucketsFluentBuilder {
 
         if status.is_success() {
             let text = resp.text().await?;
-            let output: ListBucketsOutput = quick_xml::de::from_str(&text)
-                .map_err(|e| OSSError::XmlParse(e.to_string()))?;
+            let output: ListBucketsOutput =
+                quick_xml::de::from_str(&text).map_err(|e| OSSError::XmlParse(e.to_string()))?;
             Ok(output)
         } else {
             let text = resp.text().await?;

@@ -35,13 +35,13 @@ impl DescribeRegionsFluentBuilder {
     }
 
     /// 发送请求
-    /// 
+    ///
     /// # 返回
-    /// 
+    ///
     /// 返回 `DescribeRegionsOutput`，包含地域信息列表
-    /// 
+    ///
     /// # 错误
-    /// 
+    ///
     /// 如果请求失败，返回 `OSSError`
     pub async fn send(self) -> Result<DescribeRegionsOutput, OSSError> {
         // 构建查询参数
@@ -56,8 +56,8 @@ impl DescribeRegionsFluentBuilder {
         let req = self.handle.build_request(
             HttpMethod::Get,
             "/",
-            None,  // 不指定 bucket
-            None,  // 不指定 object key
+            None, // 不指定 bucket
+            None, // 不指定 object key
             Default::default(),
             Some(&query),
         )?;
@@ -67,8 +67,8 @@ impl DescribeRegionsFluentBuilder {
 
         if status.is_success() {
             let text = resp.text().await?;
-            let output: DescribeRegionsOutput = quick_xml::de::from_str(&text)
-                .map_err(|e| OSSError::XmlParse(e.to_string()))?;
+            let output: DescribeRegionsOutput =
+                quick_xml::de::from_str(&text).map_err(|e| OSSError::XmlParse(e.to_string()))?;
             Ok(output)
         } else {
             let text = resp.text().await?;

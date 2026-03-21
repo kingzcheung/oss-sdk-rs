@@ -34,17 +34,17 @@ impl GetBucketLocationFluentBuilder {
     }
 
     /// 发送请求
-    /// 
+    ///
     /// # 返回
-    /// 
+    ///
     /// 返回 `GetBucketLocationOutput`，包含 Bucket 的位置信息
-    /// 
+    ///
     /// # 错误
-    /// 
+    ///
     /// 如果请求失败，返回 `OSSError`
-    /// 
+    ///
     /// # 示例
-    /// 
+    ///
     /// ```no_run
     /// use oss_sdk_rs::Client;
     /// # async fn example(client: Client) -> Result<(), Box<dyn std::error::Error>> {
@@ -52,7 +52,7 @@ impl GetBucketLocationFluentBuilder {
     ///     .bucket("my-bucket")
     ///     .send()
     ///     .await?;
-    /// 
+    ///
     /// println!("Bucket location: {}", output.location_constraint);
     /// # Ok(())
     /// # }
@@ -71,7 +71,7 @@ impl GetBucketLocationFluentBuilder {
             HttpMethod::Get,
             "/",
             Some(&bucket),
-            None,  // 不指定 object key
+            None, // 不指定 object key
             Default::default(),
             Some(query),
         )?;
@@ -81,8 +81,8 @@ impl GetBucketLocationFluentBuilder {
 
         if status.is_success() {
             let text = resp.text().await?;
-            let output: GetBucketLocationOutput = quick_xml::de::from_str(&text)
-                .map_err(|e| OSSError::XmlParse(e.to_string()))?;
+            let output: GetBucketLocationOutput =
+                quick_xml::de::from_str(&text).map_err(|e| OSSError::XmlParse(e.to_string()))?;
             Ok(output)
         } else {
             let text = resp.text().await?;

@@ -84,13 +84,19 @@ impl GetObjectFluentBuilder {
     }
 }
 
-async fn run_operation(input: GetObjectInput, handle: Arc<Handle>) -> Result<GetObjectOutput, OSSError> {
+async fn run_operation(
+    input: GetObjectInput,
+    handle: Arc<Handle>,
+) -> Result<GetObjectOutput, OSSError> {
     let object_key = &input.key;
     let mut headers = HeaderMap::new();
 
     // 添加 Range 头
     if let Some(range) = &input.range {
-        headers.insert("Range", range.parse().map_err(|e| OSSError::InvalidHeaderValue(e))?);
+        headers.insert(
+            "Range",
+            range.parse().map_err(|e| OSSError::InvalidHeaderValue(e))?,
+        );
     }
 
     // 构建查询参数
@@ -99,7 +105,10 @@ async fn run_operation(input: GetObjectInput, handle: Arc<Handle>) -> Result<Get
         query_parts.push(format!("response-content-type={}", urlencoding::encode(ct)));
     }
     if let Some(cd) = &input.response_content_disposition {
-        query_parts.push(format!("response-content-disposition={}", urlencoding::encode(cd)));
+        query_parts.push(format!(
+            "response-content-disposition={}",
+            urlencoding::encode(cd)
+        ));
     }
     let query = if query_parts.is_empty() {
         None

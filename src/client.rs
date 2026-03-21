@@ -1,16 +1,17 @@
 //! OSS 客户端模块
 //! 提供 AWS SDK 风格的客户端实现
 
-mod get_object;
-mod put_object;
-mod list_objects;
-mod list_buckets;
-mod delete_object;
-mod head_object;
 mod copy_object;
+mod delete_object;
 mod describe_regions;
 mod get_bucket_info;
 mod get_bucket_location;
+mod get_bucket_stat;
+mod get_object;
+mod head_object;
+mod list_buckets;
+mod list_objects;
+mod put_object;
 
 use std::sync::Arc;
 use std::time::Duration;
@@ -25,16 +26,17 @@ use crate::config::Config;
 use crate::credentials::Credentials;
 use crate::errors::OSSError;
 
-pub use get_object::GetObjectFluentBuilder;
-pub use put_object::PutObjectFluentBuilder;
-pub use list_objects::ListObjectsFluentBuilder;
-pub use list_buckets::ListBucketsFluentBuilder;
-pub use delete_object::DeleteObjectFluentBuilder;
-pub use head_object::HeadObjectFluentBuilder;
 pub use copy_object::CopyObjectFluentBuilder;
+pub use delete_object::DeleteObjectFluentBuilder;
 pub use describe_regions::DescribeRegionsFluentBuilder;
 pub use get_bucket_info::GetBucketInfoFluentBuilder;
 pub use get_bucket_location::GetBucketLocationFluentBuilder;
+pub use get_bucket_stat::GetBucketStatFluentBuilder;
+pub use get_object::GetObjectFluentBuilder;
+pub use head_object::HeadObjectFluentBuilder;
+pub use list_buckets::ListBucketsFluentBuilder;
+pub use list_objects::ListObjectsFluentBuilder;
+pub use put_object::PutObjectFluentBuilder;
 
 /// HTTP 请求方法
 #[derive(Debug, Clone, Copy)]
@@ -102,7 +104,10 @@ impl Handle {
         if let Some(bucket) = bucket {
             let endpoint = self.config.endpoint().unwrap_or("");
             let header_host = get_header_host(endpoint, bucket);
-            common_headers.insert("Host", HeaderValue::from_str(&header_host).map_err(|e| OSSError::InvalidHeaderValue(e))?);
+            common_headers.insert(
+                "Host",
+                HeaderValue::from_str(&header_host).map_err(|e| OSSError::InvalidHeaderValue(e))?,
+            );
         }
         common_headers.extend(headers);
 
@@ -125,7 +130,7 @@ impl Handle {
 
         let endpoint = self.config.endpoint().unwrap_or("");
         let mut url = format!("{}{}", endpoint, uri);
-        
+
         // 添加查询参数
         if !query.is_empty() {
             url.push('?');
@@ -237,6 +242,12 @@ impl Client {
     pub fn get_bucket_location(&self) -> GetBucketLocationFluentBuilder {
         GetBucketLocationFluentBuilder::new(self.handle.clone())
     }
+
+    /// GetBucketStat 操作
+    /// 获取指定 Bucket 的存储容量、文件以及 Multipart 分片数量
+    pub fn get_bucket_stat(&self) -> GetBucketStatFluentBuilder {
+        GetBucketStatFluentBuilder::new(self.handle.clone())
+    }
 }
 
 /// 客户端构建器
@@ -254,7 +265,9 @@ impl ClientBuilder {
 
     /// 构建客户端
     pub fn build(self) -> Result<Client, OSSError> {
-        let config = self.config.ok_or_else(|| OSSError::Config("config not set".to_string()))?;
+        let config = self
+            .config
+            .ok_or_else(|| OSSError::Config("config not set".to_string()))?;
         Client::from_config(config)
     }
 }

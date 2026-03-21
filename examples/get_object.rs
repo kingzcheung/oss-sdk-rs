@@ -32,7 +32,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await?;
 
     let body = output.body_into_vec().await?;
-    println!("Get object success, content: {:?}", String::from_utf8_lossy(&body));
+    println!(
+        "Get object success, content: {:?}",
+        String::from_utf8_lossy(&body)
+    );
 
     Ok(())
 }

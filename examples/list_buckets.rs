@@ -23,15 +23,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let client = Client::from_config(config)?;
 
     // 列出所有 Bucket
-    let output = client
-        .list_buckets()
-        .max_keys(100)
-        .send()
-        .await?;
+    let output = client.list_buckets().max_keys(100).send().await?;
 
     println!("List buckets success:");
-    println!("  Owner: {} ({})", output.owner.display_name, output.owner.id);
-    
+    println!(
+        "  Owner: {} ({})",
+        output.owner.display_name, output.owner.id
+    );
+
     if output.buckets.bucket.is_empty() {
         println!("  No buckets found.");
     } else {

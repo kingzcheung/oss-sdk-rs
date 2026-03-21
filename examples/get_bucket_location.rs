@@ -8,7 +8,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // 从环境变量加载配置
     let access_key_id = std::env::var("OSS_ACCESS_KEY_ID")?;
     let access_key_secret = std::env::var("OSS_ACCESS_KEY_SECRET")?;
-    let endpoint = std::env::var("OSS_ENDPOINT").unwrap_or_else(|_| "https://oss-cn-hangzhou.aliyuncs.com".to_string());
+    let endpoint = std::env::var("OSS_ENDPOINT")
+        .unwrap_or_else(|_| "https://oss-cn-hangzhou.aliyuncs.com".to_string());
     let bucket = std::env::var("OSS_BUCKET").unwrap_or_else(|_| "my-bucket".to_string());
 
     // 创建凭证
@@ -25,10 +26,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let client = Client::from_config(config)?;
 
     // 获取 Bucket 位置信息
-    let output = client.get_bucket_location()
-        .bucket(&bucket)
-        .send()
-        .await?;
+    let output = client.get_bucket_location().bucket(&bucket).send().await?;
 
     println!("Bucket: {}", bucket);
     println!("Location: {}", output.location_constraint);

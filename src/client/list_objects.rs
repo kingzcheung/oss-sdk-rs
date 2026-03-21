@@ -69,7 +69,7 @@ impl ListObjectsFluentBuilder {
         // 构建查询参数
         let mut query_parts = Vec::new();
         query_parts.push("list-type=2".to_string());
-        
+
         if let Some(prefix) = &self.inner.prefix {
             query_parts.push(format!("prefix={}", urlencoding::encode(prefix)));
         }
@@ -77,7 +77,10 @@ impl ListObjectsFluentBuilder {
             query_parts.push(format!("delimiter={}", urlencoding::encode(delimiter)));
         }
         if let Some(marker) = &self.inner.marker {
-            query_parts.push(format!("continuation-token={}", urlencoding::encode(marker)));
+            query_parts.push(format!(
+                "continuation-token={}",
+                urlencoding::encode(marker)
+            ));
         }
         if let Some(max_keys) = self.inner.max_keys {
             query_parts.push(format!("max-keys={}", max_keys));
@@ -100,8 +103,8 @@ impl ListObjectsFluentBuilder {
 
         if status.is_success() {
             let text = resp.text().await?;
-            let output: ListObjectsOutput = quick_xml::de::from_str(&text)
-                .map_err(|e| OSSError::XmlParse(e.to_string()))?;
+            let output: ListObjectsOutput =
+                quick_xml::de::from_str(&text).map_err(|e| OSSError::XmlParse(e.to_string()))?;
             Ok(output)
         } else {
             let text = resp.text().await?;

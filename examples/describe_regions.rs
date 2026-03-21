@@ -8,7 +8,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // 从环境变量加载配置
     let access_key_id = std::env::var("OSS_ACCESS_KEY_ID")?;
     let access_key_secret = std::env::var("OSS_ACCESS_KEY_SECRET")?;
-    let endpoint = std::env::var("OSS_ENDPOINT").unwrap_or_else(|_| "https://oss-cn-hangzhou.aliyuncs.com".to_string());
+    let endpoint = std::env::var("OSS_ENDPOINT")
+        .unwrap_or_else(|_| "https://oss-cn-hangzhou.aliyuncs.com".to_string());
 
     // 创建凭证
     let credentials = Credentials::new(access_key_id, access_key_secret);
@@ -26,7 +27,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // 示例 1: 查询所有支持地域对应的 Endpoint 信息
     println!("=== 查询所有支持地域 ===");
     let output = client.describe_regions().send().await?;
-    
+
     println!("地域数量: {}", output.region_info_list.len());
     for info in &output.region_info_list {
         println!("  Region: {}", info.region);
@@ -37,11 +38,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // 示例 2: 查询指定地域对应的 Endpoint 信息
     println!("\n=== 查询指定地域 (oss-cn-hangzhou) ===");
-    let output = client.describe_regions()
+    let output = client
+        .describe_regions()
         .region("oss-cn-hangzhou")
         .send()
         .await?;
-    
+
     println!("地域数量: {}", output.region_info_list.len());
     for info in &output.region_info_list {
         println!("  Region: {}", info.region);

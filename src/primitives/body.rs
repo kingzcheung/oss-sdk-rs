@@ -2,9 +2,9 @@
 //! 表示数据流，AWS SDK 风格
 
 use bytes::Bytes;
+use futures_util::Stream;
 use std::pin::Pin;
 use std::task::{Context, Poll};
-use futures_util::Stream;
 
 /// 数据流类型
 /// 支持从 Vec<u8>, Bytes, 或 Stream 创建
@@ -22,17 +22,15 @@ enum ByteStreamInner {
 impl std::fmt::Debug for ByteStream {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match &self.inner {
-            ByteStreamInner::Static(bytes) => {
-                f.debug_struct("ByteStream")
-                    .field("type", &"static")
-                    .field("len", &bytes.len())
-                    .finish()
-            }
-            ByteStreamInner::Dynamic(_) => {
-                f.debug_struct("ByteStream")
-                    .field("type", &"dynamic")
-                    .finish()
-            }
+            ByteStreamInner::Static(bytes) => f
+                .debug_struct("ByteStream")
+                .field("type", &"static")
+                .field("len", &bytes.len())
+                .finish(),
+            ByteStreamInner::Dynamic(_) => f
+                .debug_struct("ByteStream")
+                .field("type", &"dynamic")
+                .finish(),
         }
     }
 }
