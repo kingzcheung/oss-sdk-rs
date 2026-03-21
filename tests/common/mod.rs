@@ -1,25 +1,24 @@
 //! Copyright The iFREEGROUP/oss-sdk-rs Authors
 use std::env;
 
-use oss_sdk_rs::{client::Client, config::{Config, ConfigBuilder}};
+use oss_sdk_rs::{Client, Config, Credentials};
 
 
-pub fn create_oss_client()->Client {
+pub fn create_oss_client() -> Client {
     dotenvy::dotenv().unwrap();
     let key_id = env::var("OSS_ACCESS_KEY_ID").unwrap();
     let key_secret = env::var("OSS_ACCESS_KEY_SECRET").unwrap();
     let endpoint = env::var("OSS_ENDPOINT").unwrap();
-    let bucket = env::var("OSS_BUCKET").unwrap();
 
-    dbg!(&key_id, &key_secret, &endpoint, &bucket);
+    dbg!(&key_id, &key_secret, &endpoint);
 
-    let conf = ConfigBuilder::builder()
-    .set_access_key_id(key_id)
-    .set_access_key_secret(key_secret)
-    .set_endpoint(endpoint)
-    .set_region("cn-guangzhou")
-    .build();
-
+    let credentials = Credentials::new(key_id, key_secret);
     
-    Client::from_conf(conf)
+    let config = Config::builder()
+        .endpoint(endpoint)
+        .credentials(credentials)
+        .build()
+        .expect("Failed to build config");
+
+    Client::from_config(config).expect("Failed to create client")
 }

@@ -228,7 +228,8 @@ impl<'a> ObjectAPI for OSS<'a> {
             StatusCode::BAD_REQUEST | StatusCode::FORBIDDEN | StatusCode::CONFLICT => {
                 let text = resp.text().await?;
                 // dbg!(&text);
-                let er: ErrorResponse = serde_xml_rs::from_str(&text)?;
+                let er: ErrorResponse = quick_xml::de::from_str(&text)
+                    .map_err(|e| OSSError::XmlParse(e.to_string()))?;
                 Err(OSSError::Object {
                     status_code: status,
                     message: er.message,
