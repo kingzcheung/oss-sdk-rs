@@ -1,42 +1,55 @@
 [package]
 name = "oss-sdk-rs"
-version = "1.2.4"
-authors = ["NoXF <xianyou.cyq@gmail.com>","kingzcheung <kingzcheung@gmail.com>"]
+version = "2.0.0"
+authors = ["kingzcheung <kingzcheung@gmail.com>"]
 edition = "2021"
 readme = "README.md"
 description = "Aliyun OSS SDK"
 license = "Apache-2.0"
 repository = "https://github.com/kingzcheung/oss-sdk-rs"
+keywords = ["oss", "aliyun", "alibaba", "storage", "sdk"]
+categories = ["api-bindings", "web-programming"]
 
 [dependencies]
-tokio = {version = "1.39.3", features = ["full"]}
-reqwest = {version = "0.12.7", features = ["json","charset","rustls-tls"],  default-features = false}
-base64 = "0.22.1"
-chrono = "0.4.20"
-log = "0.4.17"
-quick-xml = { version = "0.36.1", features = ["serialize"] }
-derive_more = {version = "1",features = ["full"]}
-bytes = "1.0"
-async-trait = "0.1.53"
-httpdate = "1.0.2"
+# 异步运行时
+tokio = { version = "1", features = ["full"] }
+
+# HTTP 客户端
+reqwest = { version = "0.12", features = ["json", "charset", "rustls-tls"], default-features = false }
+
+# 序列化
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+quick-xml = { version = "0.36", features = ["serialize"] }
+
+# 加密和编码
+base64 = "0.22"
 hmac = "0.12"
 sha1 = "0.10"
-sha2 = "0.10.8"
+sha2 = "0.10"
 md5 = "0.7"
-lazy_static = "1.4.0"
-serde = { version = "1.0.209", features = ["derive"] }
-thiserror = "1.0.40"
-serde_json = "1.0.127"
-urlencoding = "2.1.3"
-hex = "0.4.3"
+hex = "0.4"
+
+# 时间处理
+chrono = "0.4"
+
+# 字节处理
+bytes = "1"
+
+# URL 编码
+urlencoding = "2"
+
+# 异步
+async-trait = "0.1"
 futures-util = "0.3"
-pin-project-lite = "0.2"
+
+# 错误处理
+thiserror = "1"
 
 [features]
 default = ["rustls-tls"]
 default-tls = ["reqwest/default-tls"]
 rustls-tls = ["reqwest/rustls-tls"]
 
-[target.'cfg(unix)'.dev-dependencies]
-dotenvy = "0.15.7"
-
+[dev-dependencies]
+dotenvy = "0.15"

@@ -1,5 +1,5 @@
 //! OSS 客户端模块
-//! 提供 AWS SDK 风格的客户端实现
+//! 提供 OSS SDK 风格的客户端实现
 
 mod abort_multipart_upload;
 mod append_object;
@@ -7,6 +7,7 @@ mod complete_multipart_upload;
 mod copy_object;
 mod delete_multiple_objects;
 mod delete_object;
+mod delete_object_tagging;
 mod describe_regions;
 mod get_bucket_info;
 mod get_bucket_location;
@@ -14,6 +15,7 @@ mod get_bucket_stat;
 mod get_object;
 mod get_object_acl;
 mod get_object_meta;
+mod get_object_tagging;
 mod get_symlink;
 mod head_object;
 mod initiate_multipart_upload;
@@ -24,6 +26,7 @@ mod list_parts;
 mod post_object;
 mod put_object;
 mod put_object_acl;
+mod put_object_tagging;
 mod put_symlink;
 mod restore_object;
 mod seal_append_object;
@@ -49,6 +52,7 @@ pub use complete_multipart_upload::CompleteMultipartUploadFluentBuilder;
 pub use copy_object::CopyObjectFluentBuilder;
 pub use delete_multiple_objects::DeleteMultipleObjectsFluentBuilder;
 pub use delete_object::DeleteObjectFluentBuilder;
+pub use delete_object_tagging::DeleteObjectTaggingFluentBuilder;
 pub use describe_regions::DescribeRegionsFluentBuilder;
 pub use get_bucket_info::GetBucketInfoFluentBuilder;
 pub use get_bucket_location::GetBucketLocationFluentBuilder;
@@ -56,6 +60,7 @@ pub use get_bucket_stat::GetBucketStatFluentBuilder;
 pub use get_object::GetObjectFluentBuilder;
 pub use get_object_acl::GetObjectAclFluentBuilder;
 pub use get_object_meta::GetObjectMetaFluentBuilder;
+pub use get_object_tagging::GetObjectTaggingFluentBuilder;
 pub use get_symlink::GetSymlinkFluentBuilder;
 pub use head_object::HeadObjectFluentBuilder;
 pub use initiate_multipart_upload::InitiateMultipartUploadFluentBuilder;
@@ -66,6 +71,7 @@ pub use list_parts::ListPartsFluentBuilder;
 pub use post_object::PostObjectFluentBuilder;
 pub use put_object::PutObjectFluentBuilder;
 pub use put_object_acl::PutObjectAclFluentBuilder;
+pub use put_object_tagging::PutObjectTaggingFluentBuilder;
 pub use put_symlink::PutSymlinkFluentBuilder;
 pub use restore_object::RestoreObjectFluentBuilder;
 pub use seal_append_object::SealAppendObjectFluentBuilder;
@@ -384,6 +390,24 @@ impl Client {
     /// 获取软链接信息
     pub fn get_symlink(&self) -> GetSymlinkFluentBuilder {
         GetSymlinkFluentBuilder::new(self.handle.clone())
+    }
+
+    /// PutObjectTagging 操作
+    /// 设置或更新对象（Object）的标签（Tagging）信息
+    pub fn put_object_tagging(&self) -> PutObjectTaggingFluentBuilder {
+        PutObjectTaggingFluentBuilder::new(self.handle.clone())
+    }
+
+    /// GetObjectTagging 操作
+    /// 获取对象（Object）的标签（Tagging）信息
+    pub fn get_object_tagging(&self) -> GetObjectTaggingFluentBuilder {
+        GetObjectTaggingFluentBuilder::new(self.handle.clone())
+    }
+
+    /// DeleteObjectTagging 操作
+    /// 删除对象（Object）的标签（Tagging）信息
+    pub fn delete_object_tagging(&self) -> DeleteObjectTaggingFluentBuilder {
+        DeleteObjectTaggingFluentBuilder::new(self.handle.clone())
     }
 }
 

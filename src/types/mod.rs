@@ -1,5 +1,5 @@
 //! 类型定义模块
-//! 提供 AWS SDK 风格的 Input/Output 类型
+//! 提供 OSS SDK 风格的 Input/Output 类型
 
 mod abort_multipart_upload;
 mod append_object;
@@ -7,6 +7,7 @@ mod complete_multipart_upload;
 mod copy_object;
 mod delete_multiple_objects;
 mod delete_object;
+mod delete_object_tagging;
 mod describe_regions;
 mod get_bucket_info;
 mod get_bucket_location;
@@ -14,6 +15,7 @@ mod get_bucket_stat;
 mod get_object;
 mod get_object_acl;
 mod get_object_meta;
+mod get_object_tagging;
 mod get_symlink;
 mod head_object;
 mod initiate_multipart_upload;
@@ -24,6 +26,7 @@ mod list_parts;
 mod post_object;
 mod put_object;
 mod put_object_acl;
+mod put_object_tagging;
 mod put_symlink;
 mod restore_object;
 mod seal_append_object;
@@ -44,6 +47,7 @@ pub use delete_multiple_objects::{
     ObjectIdentifier,
 };
 pub use delete_object::{DeleteObjectInput, DeleteObjectOutput};
+pub use delete_object_tagging::{DeleteObjectTaggingInput, DeleteObjectTaggingOutput};
 pub use describe_regions::{DescribeRegionsInput, DescribeRegionsOutput, RegionInfo};
 pub use get_bucket_info::{
     AccessControlListInfo, BucketInfoDetail, BucketPolicyInfo, GetBucketInfoInput,
@@ -56,6 +60,9 @@ pub use get_object_acl::{
     AccessControlPolicy, GetObjectAclInput, GetObjectAclOutput, Owner as ObjectOwner,
 };
 pub use get_object_meta::{GetObjectMetaInput, GetObjectMetaOutput};
+pub use get_object_tagging::{
+    GetObjectTaggingInput, GetObjectTaggingOutput, Tag as ObjectTag, Tagging,
+};
 pub use get_symlink::{GetSymlinkInput, GetSymlinkOutput};
 pub use head_object::{
     HeadObjectInput, HeadObjectOutput, HeadObjectStatus, ObjectType, RestoreInfo,
@@ -76,6 +83,9 @@ pub use put_object::{
     PutObjectOutput, StorageClass as PutStorageClass,
 };
 pub use put_object_acl::{ObjectAcl as ObjectAclPermission, PutObjectAclInput, PutObjectAclOutput};
+pub use put_object_tagging::{
+    PutObjectTaggingInput, PutObjectTaggingOutput, Tag as PutTag, Tagging as PutTagging,
+};
 pub use put_symlink::{PutSymlinkInput, PutSymlinkOutput};
 pub use restore_object::{
     to_restore_xml, RestoreObjectInput, RestoreObjectOutput, RestoreStatus, Tier,

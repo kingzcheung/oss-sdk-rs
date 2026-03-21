@@ -132,10 +132,12 @@ pub fn to_complete_multipart_upload_xml(parts: &[PartItem]) -> String {
 
 /// CompleteMultipartUpload 输入构建器
 #[derive(Debug, Default)]
+#[allow(dead_code)]
 pub struct CompleteMultipartUploadInputBuilder {
     inner: CompleteMultipartUploadInput,
 }
 
+#[allow(dead_code)]
 impl CompleteMultipartUploadInputBuilder {
     /// 创建新的构建器
     pub fn new() -> Self {

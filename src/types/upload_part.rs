@@ -46,10 +46,12 @@ impl Default for UploadPartOutput {
 
 /// UploadPart 输入构建器
 #[derive(Debug, Default)]
+#[allow(dead_code)]
 pub struct UploadPartInputBuilder {
     inner: UploadPartInput,
 }
 
+#[allow(dead_code)]
 impl UploadPartInputBuilder {
     /// 创建新的构建器
     pub fn new() -> Self {

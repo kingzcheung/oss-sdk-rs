@@ -171,6 +171,20 @@ println!("Content-Type: {:?}", output.content_type);
 println!("ETag: {:?}", output.etag);
 ```
 
+#### 获取对象元数据 (GetObjectMeta)
+
+```rust
+let output = client
+    .get_object_meta()
+    .bucket("my-bucket")
+    .key("path/to/file.txt")
+    .send()
+    .await?;
+
+println!("Content-Length: {:?}", output.content_length);
+println!("ETag: {:?}", output.etag);
+```
+
 #### 批量删除对象 (DeleteMultipleObjects)
 
 ```rust
@@ -179,6 +193,103 @@ let output = client
     .bucket("my-bucket")
     .objects(vec!["file1.txt", "file2.txt", "file3.txt"])
     .quiet(false)
+    .send()
+    .await?;
+```
+
+#### 设置对象访问权限 (PutObjectAcl)
+
+```rust
+use oss_sdk_rs::ObjectAclPermission;
+
+let output = client
+    .put_object_acl()
+    .bucket("my-bucket")
+    .key("path/to/file.txt")
+    .acl(ObjectAclPermission::PublicRead)
+    .send()
+    .await?;
+```
+
+#### 获取对象访问权限 (GetObjectAcl)
+
+```rust
+let output = client
+    .get_object_acl()
+    .bucket("my-bucket")
+    .key("path/to/file.txt")
+    .send()
+    .await?;
+
+println!("ACL: {:?}", output.acl);
+```
+
+#### 创建符号链接 (PutSymlink)
+
+```rust
+let output = client
+    .put_symlink()
+    .bucket("my-bucket")
+    .key("link-to-file.txt")
+    .target("path/to/original-file.txt")
+    .send()
+    .await?;
+```
+
+#### 获取符号链接 (GetSymlink)
+
+```rust
+let output = client
+    .get_symlink()
+    .bucket("my-bucket")
+    .key("link-to-file.txt")
+    .send()
+    .await?;
+
+println!("Target: {:?}", output.target);
+```
+
+#### 设置对象标签 (PutObjectTagging)
+
+```rust
+use oss_sdk_rs::{Tagging, Tag};
+
+let tagging = Tagging::new(vec![
+    Tag::new("env", "production"),
+    Tag::new("team", "backend"),
+]);
+
+let output = client
+    .put_object_tagging()
+    .bucket("my-bucket")
+    .key("path/to/file.txt")
+    .tagging(tagging)
+    .send()
+    .await?;
+```
+
+#### 获取对象标签 (GetObjectTagging)
+
+```rust
+let output = client
+    .get_object_tagging()
+    .bucket("my-bucket")
+    .key("path/to/file.txt")
+    .send()
+    .await?;
+
+for tag in output.tagging.tag_set {
+    println!("{}: {}", tag.key, tag.value);
+}
+```
+
+#### 删除对象标签 (DeleteObjectTagging)
+
+```rust
+let output = client
+    .delete_object_tagging()
+    .bucket("my-bucket")
+    .key("path/to/file.txt")
     .send()
     .await?;
 ```
@@ -208,6 +319,21 @@ let output = client
     .upload_id(&upload_id)
     .part_number(1)
     .body(part_data)
+    .send()
+    .await?;
+```
+
+#### 分片复制 (UploadPartCopy)
+
+```rust
+let output = client
+    .upload_part_copy()
+    .bucket("dest-bucket")
+    .key("dest-key")
+    .upload_id(&upload_id)
+    .part_number(1)
+    .copy_source("source-bucket/source-key")
+    .copy_source_range("bytes=0-1048575")
     .send()
     .await?;
 ```
@@ -318,6 +444,23 @@ println!("Storage: {} bytes", output.storage.unwrap_or(0));
 println!("Object Count: {}", output.object_count.unwrap_or(0));
 ```
 
+#### 列出对象
+
+```rust
+let output = client
+    .list_objects()
+    .bucket("my-bucket")
+    .prefix("photos/")
+    .delimiter("/")
+    .max_keys(100)
+    .send()
+    .await?;
+
+for object in output.contents {
+    println!("Object: {} ({} bytes)", object.key, object.size);
+}
+```
+
 ### 其他操作
 
 #### 查询区域信息
@@ -359,7 +502,20 @@ let output = client
     .await?;
 ```
 
+#### 封印追加对象 (SealAppendObject)
+
+```rust
+let output = client
+    .seal_append_object()
+    .bucket("my-bucket")
+    .key("append-file.txt")
+    .send()
+    .await?;
+```
+
 ## 支持的 API
+
+### 对象操作
 
 | API | 描述 |
 |-----|------|
@@ -372,6 +528,18 @@ let output = client
 | GetObjectMeta | 获取对象元数据 |
 | DeleteMultipleObjects | 批量删除对象 |
 | PostObject | 表单上传 |
+| PutObjectAcl | 设置对象访问权限 |
+| GetObjectAcl | 获取对象访问权限 |
+| PutSymlink | 创建符号链接 |
+| GetSymlink | 获取符号链接 |
+| PutObjectTagging | 设置对象标签 |
+| GetObjectTagging | 获取对象标签 |
+| DeleteObjectTagging | 删除对象标签 |
+
+### 分片上传
+
+| API | 描述 |
+|-----|------|
 | InitiateMultipartUpload | 初始化分片上传 |
 | UploadPart | 上传分片 |
 | UploadPartCopy | 分片复制 |
@@ -379,11 +547,21 @@ let output = client
 | AbortMultipartUpload | 取消分片上传 |
 | ListParts | 列出分片 |
 | ListMultipartUploads | 列出未完成的分片上传 |
-| ListObjects | 列出对象 |
+
+### Bucket 操作
+
+| API | 描述 |
+|-----|------|
 | ListBuckets | 列出 Bucket |
 | GetBucketInfo | 获取 Bucket 信息 |
 | GetBucketLocation | 获取 Bucket 位置 |
 | GetBucketStat | 获取 Bucket 统计信息 |
+| ListObjects | 列出对象 |
+
+### 其他操作
+
+| API | 描述 |
+|-----|------|
 | DescribeRegions | 查询区域信息 |
 | RestoreObject | 恢复归档对象 |
 | SealAppendObject | 封印追加对象 |
@@ -432,6 +610,7 @@ match client.get_object().bucket("bucket").key("key").send().await {
 - [`get_bucket_info.rs`](./examples/get_bucket_info.rs) - 获取 Bucket 信息
 - [`get_bucket_stat.rs`](./examples/get_bucket_stat.rs) - 获取 Bucket 统计
 - [`describe_regions.rs`](./examples/describe_regions.rs) - 查询区域信息
+- [`get_bucket_location.rs`](./examples/get_bucket_location.rs) - 获取 Bucket 位置
 
 ## 开发
 

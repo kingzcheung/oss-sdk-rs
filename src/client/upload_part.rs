@@ -221,7 +221,6 @@ impl UploadPartFluentBuilder {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
 
     #[test]
     fn test_builder_bucket_key() {
